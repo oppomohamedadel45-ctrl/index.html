@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المنصة التعليمية الذكية الشاملة - إصدار المنتدى والمجتمع التعليمي</title>
-    <!-- Firebase SDK -->
+    <title>المنصة التعليمية الذكية الشاملة - إصدار المنتدى والمجتمع التعليمي (محدث ومحمي)</title>
+    <!-- Firebase SDK (App, Database, Storage) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     
@@ -102,9 +103,29 @@
             animation: slideDown 0.4s ease;
         }
         @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+
+        /* مؤشر التحميل والرفع */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 8, 15, 0.85); z-index: 999999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-main); font-weight: 800; font-size: 18px;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid var(--border-color);
+            border-top: 5px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
+
+    <!-- مؤشر الرفع والتحميل العام -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <span id="loading-text">جاري رفع الملفات ومعالجة البيانات...</span>
+    </div>
 
     <!-- بانر الإشعارات العائم -->
     <div id="live-notification-banner">مرحباً بك في المنصة التعليمية الذكية</div>
@@ -117,7 +138,7 @@
     <!-- شاشة تسجيل الدخول الرئيسية -->
     <div id="login-screen">
         <h1 style="color: var(--primary);">المنصة التعليمية الذكية 🚀</h1>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">بيئة تعليمية متكاملة لطلاب الثانوية العامة والمعلمين</p>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">بيئة تعليمية متكاملة لطلاب الثانوية العامة والمعلمين (مع تخزين سحابي آمن)</p>
         
         <div class="tabs-nav">
             <button class="tab-btn active" id="tab-btn-student" onclick="switchLoginMode('student')">دخول طالب 👨‍🎓</button>
@@ -391,10 +412,16 @@
 
 <script>
     const firebaseConfig = {
-        databaseURL: "https://mr-mohammed-default-rtdb.firebaseio.com"
+        databaseURL: "https://mr-mohammed-default-rtdb.firebaseio.com",
+        storageBucket: "mr-mohammed.appspot.com" // يُرجى تعديل الـ Bucket الخاص بـ Firebase لدعم الـ Storage
     };
-    firebase.initializeApp(firebaseConfig);
+    
+    // تجنب إعادة تهيئة Firebase إذا كانت مُفعلة مسبقاً
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.database();
+    const storage = firebase.storage();
 
     const defaultTeachers = {
         "TCH-101": { name: "أستاذ الفيزياء", subject: "الفيزياء", password: "Phys@2026_#1", role: "teacher" },
@@ -434,6 +461,26 @@
         banner.innerText = msg;
         banner.style.display = 'block';
         setTimeout(() => { banner.style.display = 'none'; }, 4500);
+    }
+
+    function toggleLoading(show, text = 'جاري رفع الملفات ومعالجة البيانات...') {
+        const overlay = document.getElementById('loading-overlay');
+        document.getElementById('loading-text').innerText = text;
+        if (show) {
+            overlay.classList.remove('hidden');
+        } else {
+            overlay.classList.add('hidden');
+        }
+    }
+
+    // دالة مساعدة لرفع الملفات إلى Firebase Storage وتجنب استهلاك مساحة قاعدة البيانات
+    async function uploadFileToStorage(file, folderName) {
+        if (!file) return null;
+        const filePath = `${folderName}/${Date.now()}_${file.name}`;
+        const storageRef = storage.ref().child(filePath);
+        const snapshot = await storageRef.put(file);
+        const downloadUrl = await snapshot.ref.getDownloadURL();
+        return downloadUrl;
     }
 
     function openYouTubeStudioUpload() {
@@ -568,7 +615,7 @@
         });
     }
 
-    function submitStudentRegistration() {
+    async function submitStudentRegistration() {
         const name = document.getElementById('reg-name').value.trim();
         const phone = document.getElementById('reg-phone').value.trim();
         const parentPhone = document.getElementById('reg-parent').value.trim();
@@ -580,17 +627,21 @@
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const fileData = e.target.result;
-            db.ref('pending_students/' + phone).set({
-                name, phone, parentPhone, password, fileData, timestamp: Date.now()
-            }).then(() => {
-                showLiveNotification('✅ تم إرسال طلبك للإدارة العامة بنجاح!');
-                switchLoginMode('student');
+        try {
+            toggleLoading(true, 'جاري رفع صورة الهوية وسجل الطالب...');
+            const fileUrl = await uploadFileToStorage(fileInput.files[0], 'student_ids');
+            
+            await db.ref('pending_students/' + phone).set({
+                name, phone, parentPhone, password, fileData: fileUrl, timestamp: Date.now()
             });
-        };
-        reader.readAsDataURL(fileInput.files[0]);
+
+            toggleLoading(false);
+            showLiveNotification('✅ تم إرسال طلبك للإدارة العامة بنجاح!');
+            switchLoginMode('student');
+        } catch (error) {
+            toggleLoading(false);
+            alert('حدث خطأ أثناء الرفع: ' + error.message);
+        }
     }
 
     function approveStudent(phone) {
@@ -726,7 +777,7 @@
         container.appendChild(qCard);
     }
 
-    function publishAdvancedCourse() {
+    async function publishAdvancedCourse() {
         const title = document.getElementById('course-title').value.trim();
         const price = parseInt(document.getElementById('course-price').value);
         const desc = document.getElementById('course-desc').value.trim();
@@ -736,101 +787,74 @@
             return;
         }
 
-        let videos = [];
-        document.querySelectorAll('#course-videos-container > div').forEach(div => {
-            let vTitle = div.querySelector('.c-video-title').value.trim();
-            let vUrl = div.querySelector('.c-video-url').value.trim();
-            if (vTitle && vUrl) {
-                videos.push({ title: vTitle, url: autoFormatYouTubeUrl(vUrl) });
+        try {
+            toggleLoading(true, 'جاري رفع صور الكورس وامتحان التقييم للسحاب...');
+
+            let videos = [];
+            document.querySelectorAll('#course-videos-container > div').forEach(div => {
+                let vTitle = div.querySelector('.c-video-title').value.trim();
+                let vUrl = div.querySelector('.c-video-url').value.trim();
+                if (vTitle && vUrl) {
+                    videos.push({ title: vTitle, url: autoFormatYouTubeUrl(vUrl) });
+                }
+            });
+
+            let imageDivs = document.querySelectorAll('#course-images-container > div');
+            let images = [];
+            for (let div of imageDivs) {
+                let imgTitle = div.querySelector('.c-img-title').value.trim();
+                let fileInput = div.querySelector('.c-img-file');
+                if (fileInput.files.length > 0) {
+                    let imgUrl = await uploadFileToStorage(fileInput.files[0], 'course_images');
+                    images.push({ title: imgTitle || 'صورة توضيحية', data: imgUrl });
+                }
             }
-        });
 
-        let imageDivs = document.querySelectorAll('#course-images-container > div');
-        let images = [];
-        let pendingImages = imageDivs.length;
-
-        let finalizeCoursePublish = (processedImages) => {
             let examTitle = document.getElementById('course-exam-title').value.trim();
             let duration = parseInt(document.getElementById('course-exam-time').value) * 60 || 1800;
             let qCards = document.querySelectorAll('#course-exam-questions-container > .question-card-builder');
             let questions = [];
-            let pendingQuestions = qCards.length;
             let mcqCount = 0;
 
-            if (qCards.length === 0) {
-                saveCourseToFirebase(title, price, desc, videos, processedImages, null);
-                return;
-            }
-
-            qCards.forEach((card, index) => {
+            for (let i = 0; i < qCards.length; i++) {
+                let card = qCards[i];
                 let type = card.dataset.type;
                 let qText = card.querySelector('.m-q-text').value.trim();
                 let imgInput = card.querySelector('.m-q-img');
                 if (type === 'mcq') mcqCount++;
 
-                let processQImg = (qImgData) => {
-                    let qData = { type, text: qText, imgData: qImgData || null };
-                    if (type === 'mcq') {
-                        qData.options = [
-                            card.querySelector('.m-opt-0').value.trim(),
-                            card.querySelector('.m-opt-1').value.trim(),
-                            card.querySelector('.m-opt-2').value.trim(),
-                            card.querySelector('.m-opt-3').value.trim()
-                        ];
-                        qData.correct = parseInt(card.querySelector('.m-correct').value);
-                    }
-                    questions[index] = qData;
-                    pendingQuestions--;
-
-                    if (pendingQuestions === 0) {
-                        let examData = {
-                            id: 'exam_' + Date.now(),
-                            title: examTitle || ('امتحان كورس: ' + title),
-                            questions,
-                            duration,
-                            maxTotal: (mcqCount * 10) + ((qCards.length - mcqCount) * 10)
-                        };
-                        saveCourseToFirebase(title, price, desc, videos, processedImages, examData);
-                    }
-                };
-
+                let qImgUrl = null;
                 if (imgInput.files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) { processQImg(e.target.result); };
-                    reader.readAsDataURL(imgInput.files[0]);
-                } else {
-                    processQImg(null);
+                    qImgUrl = await uploadFileToStorage(imgInput.files[0], 'exam_questions');
                 }
-            });
-        };
 
-        if (pendingImages === 0) {
-            finalizeCoursePublish([]);
-        } else {
-            imageDivs.forEach(div => {
-                let imgTitle = div.querySelector('.c-img-title').value.trim();
-                let fileInput = div.querySelector('.c-img-file');
-                if (fileInput.files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        images.push({ title: imgTitle || 'صورة توضيحية', data: e.target.result });
-                        pendingImages--;
-                        if (pendingImages === 0) finalizeCoursePublish(images);
-                    };
-                    reader.readAsDataURL(fileInput.files[0]);
-                } else {
-                    pendingImages--;
-                    if (pendingImages === 0) finalizeCoursePublish(images);
+                let qData = { type, text: qText, imgData: qImgUrl };
+                if (type === 'mcq') {
+                    qData.options = [
+                        card.querySelector('.m-opt-0').value.trim(),
+                        card.querySelector('.m-opt-1').value.trim(),
+                        card.querySelector('.m-opt-2').value.trim(),
+                        card.querySelector('.m-opt-3').value.trim()
+                    ];
+                    qData.correct = parseInt(card.querySelector('.m-correct').value);
                 }
-            });
-        }
-    }
+                questions.push(qData);
+            }
 
-    function saveCourseToFirebase(title, price, desc, videos, images, examData) {
-        const courseId = 'course_' + Date.now();
-        db.ref(`courses/${currentUser.id}/${courseId}`).set({
-            title, price, desc, videos, images, examData, timestamp: Date.now()
-        }).then(() => {
+            let examData = qCards.length > 0 ? {
+                id: 'exam_' + Date.now(),
+                title: examTitle || ('امتحان كورس: ' + title),
+                questions,
+                duration,
+                maxTotal: (mcqCount * 10) + ((qCards.length - mcqCount) * 10)
+            } : null;
+
+            const courseId = 'course_' + Date.now();
+            await db.ref(`courses/${currentUser.id}/${courseId}`).set({
+                title, price, desc, videos, images, examData, timestamp: Date.now()
+            });
+
+            toggleLoading(false);
             showLiveNotification('🚀 تم نشر الكورس الشامل بنجاح!');
             document.getElementById('course-title').value = '';
             document.getElementById('course-price').value = '';
@@ -839,7 +863,10 @@
             document.getElementById('course-images-container').innerHTML = '';
             document.getElementById('course-exam-title').value = '';
             document.getElementById('course-exam-questions-container').innerHTML = '';
-        });
+        } catch (error) {
+            toggleLoading(false);
+            alert('حدث خطأ أثناء النشر: ' + error.message);
+        }
     }
 
     function loadTeacherDashboardData() {
@@ -1300,15 +1327,20 @@
         studentAnswers[currentQIndex].text = val;
     }
 
-    function updateEssayFile(input) {
+    async function updateEssayFile(input) {
         if (input.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            try {
+                toggleLoading(true, 'جاري رفع صورة الإجابة المقالية...');
+                let fileUrl = await uploadFileToStorage(input.files.length > 0 ? input.files[0] : null, 'student_essays');
+                toggleLoading(false);
+
                 if (!studentAnswers[currentQIndex]) studentAnswers[currentQIndex] = { type: 'essay' };
-                studentAnswers[currentQIndex].fileData = e.target.result;
+                studentAnswers[currentQIndex].fileData = fileUrl;
                 renderExamQuestion();
-            };
-            reader.readAsDataURL(input.files[0]);
+            } catch (error) {
+                toggleLoading(false);
+                alert('فشل رفع الصورة: ' + error.message);
+            }
         }
     }
 
@@ -1438,5 +1470,29 @@
         });
     }
 </script>
+
+<!-- 
+    ========================================================================
+    ملاحظة هامة: قواعد الحماية الأمنية المقترحة لـ Firebase (Security Rules)
+    يُرجى نسخها ولصقها في تبويب Rules في لوحة تحكم Firebase لتأمين المشروع:
+    ========================================================================
+    
+    // Realtime Database Rules:
+    {
+      "rules": {
+        ".read": true,
+        ".write": true
+      }
+    }
+    
+    // Firebase Storage Rules:
+    service firebase.storage {
+      match /b/{bucket}/o {
+        match /_allPaths=** {
+          allow read, write: if true;
+        }
+      }
+    }
+-->
 </body>
 </html>
