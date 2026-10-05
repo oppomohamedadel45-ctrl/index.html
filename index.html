@@ -138,7 +138,7 @@
     <!-- شاشة تسجيل الدخول الرئيسية -->
     <div id="login-screen">
         <h1 style="color: var(--primary);">المنصة التعليمية الذكية 🚀</h1>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">بيئة تعليمية متكاملة لطلاب الثانوية العامة والمعلمين (مع تخزين سحابي آمن)</p>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">بيئة تعليمية متكاملة لطلاب الثانوية العامة والمعلمين (مع تخزين سحابي آمن ومشفر)</p>
         
         <div class="tabs-nav">
             <button class="tab-btn active" id="tab-btn-student" onclick="switchLoginMode('student')">دخول طالب 👨‍🎓</button>
@@ -413,10 +413,9 @@
 <script>
     const firebaseConfig = {
         databaseURL: "https://mr-mohammed-default-rtdb.firebaseio.com",
-        storageBucket: "mr-mohammed.appspot.com" // يُرجى تعديل الـ Bucket الخاص بـ Firebase لدعم الـ Storage
+        storageBucket: "mr-mohammed.appspot.com"
     };
     
-    // تجنب إعادة تهيئة Firebase إذا كانت مُفعلة مسبقاً
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
@@ -473,7 +472,6 @@
         }
     }
 
-    // دالة مساعدة لرفع الملفات إلى Firebase Storage وتجنب استهلاك مساحة قاعدة البيانات
     async function uploadFileToStorage(file, folderName) {
         if (!file) return null;
         const filePath = `${folderName}/${Date.now()}_${file.name}`;
@@ -1473,23 +1471,40 @@
 
 <!-- 
     ========================================================================
-    ملاحظة هامة: قواعد الحماية الأمنية المقترحة لـ Firebase (Security Rules)
-    يُرجى نسخها ولصقها في تبويب Rules في لوحة تحكم Firebase لتأمين المشروع:
+    قواعد الحماية الأمنية الموصى بها لتفعيلها في Firebase (Security Rules)
     ========================================================================
     
-    // Realtime Database Rules:
+    // Realtime Database Rules (تأمين قواعد البيانات):
     {
       "rules": {
-        ".read": true,
-        ".write": true
+        "teachers": {
+          ".read": true,
+          ".write": "auth != null"
+        },
+        "courses": {
+          ".read": true,
+          ".write": "auth != null"
+        },
+        "authorized_students": {
+          ".read": true,
+          ".write": "auth != null"
+        },
+        "forum_posts": {
+          ".read": true,
+          ".write": true
+        }
       }
     }
     
-    // Firebase Storage Rules:
+    // Firebase Storage Rules (حماية ملفات التخزين):
     service firebase.storage {
       match /b/{bucket}/o {
-        match /_allPaths=** {
+        match /student_ids/{allPaths=**} {
           allow read, write: if true;
+        }
+        match /course_images/{allPaths=**} {
+          allow read: if true;
+          allow write: if request.auth != null;
         }
       }
     }
