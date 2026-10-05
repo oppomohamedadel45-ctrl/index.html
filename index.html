@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المنصة التعليمية الذكية v2.5 - نظام نشر مرن</title>
+<title>المنصة التعليمية الذكية v4.0</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -50,6 +51,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); box-sh
     font-weight: 800; cursor: pointer; transition: 0.3s; background: var(--primary); color: white;
     margin-top: 10px; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.3); }
 .btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 .btn-success { background: var(--success); }
 .btn-danger { background: var(--danger); }
 .btn-warning { background: var(--warning); color: #000; }
@@ -78,7 +80,6 @@ th { background: #1a2236; color: var(--text-main); }
 .badge-info { background: rgba(8, 145, 178, 0.2); color: #0891b2; border: 1px solid rgba(8, 145, 178, 0.4); }
 .badge-accent { background: rgba(124, 58, 237, 0.2); color: var(--accent); border: 1px solid rgba(124, 58, 237, 0.4); }
 
-/* اختيار نوع النشر */
 .publish-type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px; margin-bottom: 20px; }
 .publish-type-option { background: #05080f; border: 2px solid var(--border-color);
@@ -95,7 +96,6 @@ th { background: #1a2236; color: var(--text-main); }
     background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
 
-/* بطاقات الكورسات للطالب */
 .course-card { background: #05080f; padding: 20px; border-radius: 14px;
     margin-bottom: 15px; border: 1px solid var(--border-color); display: flex;
     justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; transition: 0.3s; }
@@ -103,7 +103,6 @@ th { background: #1a2236; color: var(--text-main); }
 .course-card .course-info { flex: 1; min-width: 200px; }
 .course-card h4 { color: var(--primary); margin-bottom: 6px; text-align: right; }
 
-/* فيديو */
 .video-wrapper { position: relative; width: 100%; height: 100%; background: #000; }
 .video-shield { position: absolute; top: 0; left: 0; width: 100%; height: 48px; z-index: 10; }
 .video-shield-bottom { position: absolute; bottom: 0; right: 0; width: 70px; height: 55px; z-index: 10; }
@@ -177,7 +176,7 @@ th { background: #1a2236; color: var(--text-main); }
 
 <div class="container">
     <div style="text-align: center; margin-bottom: 20px; font-size: 14px; color: var(--primary); font-weight: 900;">
-        🌟 المنصة التعليمية الذكية v2.5 - نظام النشر المرن | إشراف محمد عادل 🚀
+        🌟 المنصة التعليمية الذكية v4.0 - إصدار آمن ومحمي 🔐
     </div>
 
     <!-- شاشة تسجيل الدخول -->
@@ -201,28 +200,28 @@ th { background: #1a2236; color: var(--text-main); }
             <div class="form-group"><label>رقم هاتف ولي الأمر:</label><input type="tel" id="reg-parent" placeholder="01112345678" maxlength="11"></div>
             <div class="form-group"><label>الرقم السري:</label><input type="password" id="reg-pass" placeholder="كلمة المرور"></div>
             <div class="form-group"><label>صورة الهوية:</label><input type="file" id="reg-file" accept="image/*"></div>
-            <button class="btn btn-success" onclick="submitStudentRegistration()">🚀 إرسال الطلب</button>
+            <button class="btn btn-success" onclick="submitStudentRegistration(this)">🚀 إرسال الطلب</button>
         </div>
 
         <div id="box-student-login" class="card-box" style="max-width: 500px; margin: 0 auto;">
             <h3>👤 دخول الطالب</h3>
             <div class="form-group"><label>رقم الهاتف:</label><input type="tel" id="st-login-phone" placeholder="01012345678" maxlength="11"></div>
             <div class="form-group"><label>الرقم السري:</label><input type="password" id="st-login-pass"></div>
-            <button class="btn" onclick="handleStudentLogin()">🎯 دخول</button>
+            <button class="btn" onclick="handleStudentLogin(this)">🎯 دخول</button>
         </div>
 
         <div id="box-teacher-login" class="card-box hidden" style="max-width: 500px; margin: 0 auto;">
             <h3>👨‍🏫 بوابة المعلمين</h3>
             <div class="form-group"><label>كود المعلم:</label><input type="text" id="teacher-login-id" placeholder="TCH-101"></div>
             <div class="form-group"><label>الرقم السري:</label><input type="password" id="teacher-login-pass"></div>
-            <button class="btn btn-warning" onclick="handleTeacherLogin()">⚙ دخول</button>
+            <button class="btn btn-warning" onclick="handleTeacherLogin(this)">⚙ دخول</button>
         </div>
 
         <div id="box-admin-login" class="card-box hidden" style="max-width: 750px; margin: 0 auto; border-color: var(--danger);">
             <h3 style="color: var(--danger);">👑 لوحة الإدارة</h3>
             <div id="admin-auth-box">
                 <div class="form-group"><label>كلمة السر:</label><input type="password" id="admin-pass-input"></div>
-                <button class="btn btn-danger" onclick="verifyAdminAccess()">🔓 فتح اللوحة</button>
+                <button class="btn btn-danger" onclick="verifyAdminAccess(this)">🔓 فتح اللوحة</button>
             </div>
             <div id="admin-panel-content" class="hidden">
                 <div class="tabs-nav" style="margin-bottom: 20px;">
@@ -263,7 +262,7 @@ th { background: #1a2236; color: var(--text-main); }
         </div>
     </div>
 
-    <!-- ═══════════════ لوحة المعلم المطورة ═══════════════ -->
+    <!-- لوحة المعلم -->
     <div id="teacher-dashboard" class="hidden">
         <h1 id="teacher-dash-title">لوحة تحكم المعلم</h1>
         <p style="text-align:center; color: var(--success); font-weight:800; margin-bottom:25px;" id="teacher-welcome-msg"></p>
@@ -288,11 +287,9 @@ th { background: #1a2236; color: var(--text-main); }
             </button>
         </div>
 
-        <!-- ═══════════ قسم النشر المطور ═══════════ -->
         <div class="card-box" style="border-color: var(--primary);">
             <h3 style="color: var(--primary);">📤 نشر محتوى تعليمي جديد</h3>
 
-            <!-- اختيار نوع المحتوى -->
             <div style="background: #05080f; padding: 18px; border-radius: 14px; margin-bottom: 22px; border: 1px solid var(--border-color);">
                 <label style="font-size: 15px; color: var(--text-main); margin-bottom: 12px; display: block;">🎯 اختر نوع المحتوى:</label>
                 <div class="publish-type-grid">
@@ -323,21 +320,19 @@ th { background: #1a2236; color: var(--text-main); }
                 </div>
             </div>
 
-            <!-- معلومات أساسية -->
             <div class="form-group">
                 <label id="title-label">عنوان الكورس:</label>
                 <input type="text" id="course-title" placeholder="مثال: الباب الأول - الحركة">
             </div>
             <div class="form-group" id="price-field">
                 <label>سعر الكورس (بالنقاط):</label>
-                <input type="number" id="course-price" placeholder="مثال: 150">
+                <input type="number" id="course-price" placeholder="مثال: 150" min="0">
             </div>
             <div class="form-group">
                 <label>الوصف:</label>
                 <textarea id="course-desc" rows="2" placeholder="محتويات المحتوى..."></textarea>
             </div>
 
-            <!-- قسم الفيديوهات -->
             <div id="section-videos">
                 <hr style="border-color: var(--border-color); margin: 20px 0;">
                 <h4 style="color: var(--accent);">🎥 فيديوهات الشرح</h4>
@@ -345,7 +340,6 @@ th { background: #1a2236; color: var(--text-main); }
                 <button class="btn btn-warning" style="margin-bottom: 15px;" onclick="addCourseVideoField()">➕ إضافة فيديو</button>
             </div>
 
-            <!-- قسم الصور -->
             <div id="section-images">
                 <hr style="border-color: var(--border-color); margin: 20px 0;">
                 <h4 style="color: var(--success);">🖼️ الصور والمخططات</h4>
@@ -353,7 +347,6 @@ th { background: #1a2236; color: var(--text-main); }
                 <button class="btn btn-warning" style="margin-bottom: 15px;" onclick="addCourseImageField()">➕ إضافة صورة</button>
             </div>
 
-            <!-- قسم الامتحان -->
             <div id="section-exam">
                 <hr style="border-color: var(--border-color); margin: 20px 0;">
                 <h4 style="color: var(--danger);">📝 الامتحان التقييمي</h4>
@@ -372,13 +365,13 @@ th { background: #1a2236; color: var(--text-main); }
                 </div>
             </div>
 
-            <button class="btn btn-success" style="margin-top: 15px; padding: 16px;" onclick="publishAdvancedCourse()">
+            <button class="btn btn-success" id="publish-btn" style="margin-top: 15px; padding: 16px;" onclick="publishAdvancedCourse(this)">
                 🚀 نشر المحتوى للطلاب
             </button>
         </div>
 
         <div class="card-box" style="border-color: var(--warning);">
-            <h3 style="color: var(--warning);">⚙️ إدارة المحتوى المنشور (قفل / حذف)</h3>
+            <h3 style="color: var(--warning);">⚙️ إدارة المحتوى المنشور</h3>
             <div id="teacher-manage-courses-list"><p style="color: var(--text-muted);">جاري التحميل...</p></div>
         </div>
 
@@ -405,7 +398,7 @@ th { background: #1a2236; color: var(--text-main); }
         <button class="btn btn-danger" onclick="logoutSession()">🚪 تسجيل الخروج</button>
     </div>
 
-    <!-- ═══════════════ لوحة الطالب ═══════════════ -->
+    <!-- لوحة الطالب -->
     <div id="student-dashboard" class="hidden">
         <div class="welcome-banner">
             <div>
@@ -449,7 +442,6 @@ th { background: #1a2236; color: var(--text-main); }
             <div id="teacher-join-action-box"></div>
         </div>
 
-        <!-- الكورسات -->
         <div id="student-courses-section" class="hidden card-box" style="border-color: var(--accent);">
             <h3 style="color: var(--accent);">🎓 الكورسات المتاحة</h3>
             <div class="form-group" style="margin-top: 10px;">
@@ -458,7 +450,6 @@ th { background: #1a2236; color: var(--text-main); }
             <div id="student-courses-list-box"><p style="color: var(--text-muted);">جاري التحميل...</p></div>
         </div>
 
-        <!-- الامتحانات المستقلة -->
         <div id="student-standalone-exams-section" class="hidden card-box" style="border-color: var(--danger);">
             <h3 style="color: var(--danger);">📝 امتحانات مستقلة من معلمك</h3>
             <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
@@ -573,7 +564,21 @@ th { background: #1a2236; color: var(--text-main); }
 </div>
 
 <script>
-/* ═══════════════ التهيئة ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [0] الحماية
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) {
+        e.preventDefault(); return false;
+    }
+    if (e.ctrlKey && e.key.toLowerCase() === 'u') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === 's') { e.preventDefault(); return false; }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   [1] التهيئة
+   ═══════════════════════════════════════════════════════════════ */
 const firebaseConfig = {
     databaseURL: "https://mr-mohammed-default-rtdb.firebaseio.com",
     storageBucket: "mr-mohammed.appspot.com"
@@ -581,11 +586,13 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
+const auth = firebase.auth();
 
-const defaultTeachers = {
-    "TCH-101": { name: "أستاذ الفيزياء", subject: "الفيزياء", password: "Phys@2026_#1", role: "teacher" },
-    "TCH-102": { name: "أستاذ الكيمياء", subject: "الكيمياء", password: "Chem@2026_#2", role: "teacher" }
-};
+// ⭐ تحويل رقم الهاتف لإيميل وهمي
+const STUDENT_EMAIL_SUFFIX = '@student.app';
+const TEACHER_EMAIL_SUFFIX = '@teacher.app';
+function phoneToEmail(phone) { return phone + STUDENT_EMAIL_SUFFIX; }
+function codeToEmail(code) { return code.toLowerCase() + TEACHER_EMAIL_SUFFIX; }
 
 let currentUser = null;
 let currentExamData = null;
@@ -597,30 +604,121 @@ let studentAnswers = {};
 let courseCache = {};
 let chatListener = null;
 let notificationListener = null;
+let coursesListener = null;
+let examsListener = null;
+let historyListener = null;
+let forumListener = null;
+let announcementsListener = null;
 let activeChatWith = null;
 let currentCoursesList = {};
-let currentPublishType = 'full'; // ⭐ نوع النشر المختار
+let currentPublishType = 'full';
+let isPublishing = false;
 
+/* ═══════════════════════════════════════════════════════════════
+   [2] التهيئة عند التحميل
+   ═══════════════════════════════════════════════════════════════ */
 window.onload = function() {
     if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
-    db.ref('teachers').once('value', s => { if (!s.exists()) db.ref('teachers').set(defaultTeachers); });
 
-    const saved = localStorage.getItem('smart_platform_pro_user');
-    if (saved) {
-        currentUser = JSON.parse(saved);
-        if (currentUser.role === 'teacher') {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('teacher-dashboard').classList.remove('hidden');
-            document.getElementById('chat-fab').classList.remove('hidden');
-            loadTeacherDashboardData();
-            listenToMyNotifications(currentUser.id);
-        } else if (currentUser.role === 'student') {
-            enterStudentDashboard();
+    // ⭐ مراقبة حالة الدخول من Firebase Auth
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            // مش داخل
+            const saved = localStorage.getItem('smart_platform_pro_user');
+            if (saved) {
+                // عندنا بيانات مخزنة، لكن Firebase Auth مش عارفها
+                // معناه الجلسة انتهت، نمسحها
+                localStorage.removeItem('smart_platform_pro_user');
+                currentUser = null;
+            }
+            showLoginScreen();
+            return;
         }
-    }
+        
+        // المستخدم داخل في Firebase Auth
+        const saved = localStorage.getItem('smart_platform_pro_user');
+        if (saved) {
+            try {
+                currentUser = JSON.parse(saved);
+                currentUser.uid = user.uid;
+                routeUser();
+            } catch(e) {
+                localStorage.removeItem('smart_platform_pro_user');
+                auth.signOut();
+            }
+        } else {
+            // داخل في Firebase لكن مش عندنا بيانات، نطلع بيانات
+            fetchUserData(user);
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        if (timerInterval) clearInterval(timerInterval);
+    });
 };
 
-/* ═══════════════ أدوات مساعدة ═══════════════ */
+function showLoginScreen() {
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('teacher-dashboard').classList.add('hidden');
+    document.getElementById('student-dashboard').classList.add('hidden');
+    document.getElementById('chat-fab').classList.add('hidden');
+}
+
+function routeUser() {
+    if (!currentUser) { showLoginScreen(); return; }
+    if (currentUser.role === 'teacher') {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('teacher-dashboard').classList.remove('hidden');
+        document.getElementById('chat-fab').classList.remove('hidden');
+        loadTeacherDashboardData();
+        listenToMyNotifications(currentUser.id);
+    } else if (currentUser.role === 'student') {
+        enterStudentDashboard();
+    }
+}
+
+// لو المستخدم داخل في Auth بس مش عندنا بيانات في localStorage
+function fetchUserData(fbUser) {
+    // نجرب ندور عليه في teachers الأول
+    db.ref('teachers').once('value', snap => {
+        const teachers = snap.val() || {};
+        let found = null;
+        Object.keys(teachers).forEach(tId => {
+            if (codeToEmail(tId) === fbUser.email) {
+                found = { ...teachers[tId], id: tId, role: 'teacher', uid: fbUser.uid };
+            }
+        });
+        if (found) {
+            delete found.password;
+            currentUser = found;
+            localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
+            routeUser();
+            return;
+        }
+        // ندور في الطلاب
+        db.ref('authorized_students').once('value', s2 => {
+            const students = s2.val() || {};
+            let stFound = null;
+            Object.keys(students).forEach(phone => {
+                if (phoneToEmail(phone) === fbUser.email) {
+                    stFound = { ...students[phone], role: 'student', uid: fbUser.uid };
+                }
+            });
+            if (stFound) {
+                delete stFound.password;
+                currentUser = stFound;
+                localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
+                routeUser();
+            } else {
+                auth.signOut();
+            }
+        });
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   [3] أدوات مساعدة
+   ═══════════════════════════════════════════════════════════════ */
 function showLiveNotification(msg) {
     const b = document.getElementById('live-notification-banner');
     b.innerText = msg; b.style.display = 'block';
@@ -646,13 +744,13 @@ function toggleTheme() {
     showLiveNotification(isLight ? '☀️ المظهر الفاتح' : '🌙 المظهر الداكن');
 }
 
-/* ═══════════════ ⭐ اختيار نوع النشر ⭐ ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [4] اختيار نوع النشر
+   ═══════════════════════════════════════════════════════════════ */
 function selectPublishType(type, el) {
     currentPublishType = type;
-    // تحديث UI
     document.querySelectorAll('.publish-type-option').forEach(opt => opt.classList.remove('selected'));
     el.classList.add('selected');
-    // إظهار/إخفاء الأقسام
     const sectionVideos = document.getElementById('section-videos');
     const sectionImages = document.getElementById('section-images');
     const sectionExam = document.getElementById('section-exam');
@@ -660,7 +758,6 @@ function selectPublishType(type, el) {
     const titleLabel = document.getElementById('title-label');
     const titleInput = document.getElementById('course-title');
 
-    // إخفاء الكل أولاً
     sectionVideos.classList.add('hidden');
     sectionImages.classList.add('hidden');
     sectionExam.classList.add('hidden');
@@ -687,12 +784,13 @@ function selectPublishType(type, el) {
         priceField.classList.add('hidden');
         titleLabel.innerText = 'عنوان الامتحان:';
         titleInput.placeholder = 'مثال: اختبار سريع على الباب الأول';
-        // تفريغ السعر
         document.getElementById('course-price').value = '';
     }
 }
 
-/* ═══════════════ الإشعارات ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [5] الإشعارات
+   ═══════════════════════════════════════════════════════════════ */
 function pushNotification(targetId, message, type = 'info') {
     if (!targetId) return;
     db.ref('notifications/' + targetId).push({ message, type, read: false, timestamp: Date.now() });
@@ -709,7 +807,9 @@ function listenToMyNotifications(userId) {
     });
 }
 
-/* ═══════════════ الشات ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [6] الشات
+   ═══════════════════════════════════════════════════════════════ */
 function toggleChatFab() {
     const listModal = document.getElementById('chat-list-modal');
     const chatWidget = document.getElementById('chat-widget');
@@ -788,7 +888,9 @@ function sendChatMessage() {
     pushNotification(activeChatWith, 'رسالة جديدة من ' + currentUser.name, 'chat');
 }
 
-/* ═══════════════ المتصدرين والإعلانات ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [7] المتصدرين والإعلانات
+   ═══════════════════════════════════════════════════════════════ */
 function toggleLeaderboard() {
     const b = document.getElementById('leaderboard-container-box');
     b.classList.toggle('hidden');
@@ -830,7 +932,9 @@ function postAnnouncement() {
     });
 }
 function loadAnnouncements() {
-    db.ref('announcements').limitToLast(10).on('value', snap => {
+    if (announcementsListener) announcementsListener.off();
+    announcementsListener = db.ref('announcements').limitToLast(10);
+    announcementsListener.on('value', snap => {
         const list = snap.val() || {};
         const box = document.getElementById('announcements-list');
         const board = document.getElementById('announcements-board');
@@ -849,7 +953,9 @@ function loadAnnouncements() {
     });
 }
 
-/* ═══════════════ التقييمات والشهادات ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [8] التقييمات والشهادة
+   ═══════════════════════════════════════════════════════════════ */
 function rateCourse(tId, cId, r) {
     db.ref(`ratings/${tId}/${cId}/${currentUser.phone}`).set({ rating: r, name: currentUser.name, timestamp: Date.now() })
         .then(() => showLiveNotification('⭐ شكراً لتقييمك!'));
@@ -885,7 +991,9 @@ function autoFormatYouTubeUrl(val) {
     return vid ? `https://www.youtube.com/embed/${vid}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&fs=0&playsinline=1` : val;
 }
 
-/* ═══════════════ تسجيل الدخول ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [9] تسجيل الدخول
+   ═══════════════════════════════════════════════════════════════ */
 function switchLoginMode(mode) {
     ['box-student-login','box-student-register','box-teacher-login','box-admin-login'].forEach(id => document.getElementById(id).classList.add('hidden'));
     ['tab-btn-student','tab-btn-register','tab-btn-teacher','tab-btn-admin'].forEach(id => document.getElementById(id).classList.remove('active'));
@@ -909,15 +1017,132 @@ function switchAdminTab(tab, btn) {
     });
 }
 
-/* ═══════════════ الإدارة ═══════════════ */
-function verifyAdminAccess() {
-    const pass = document.getElementById('admin-pass-input').value.trim();
-    if (pass === 'Mohamed opo9067rtypro hkjlpo') {
-        document.getElementById('admin-auth-box').classList.add('hidden');
-        document.getElementById('admin-panel-content').classList.remove('hidden');
-        showLiveNotification('🔓 تم فتح اللوحة');
-    } else alert('❌ كلمة سر غير صحيحة!');
+/* ═══════════════════════════════════════════════════════════════
+   [10] دخول الطالب — Firebase Auth
+   ═══════════════════════════════════════════════════════════════ */
+function handleStudentLogin(btn) {
+    const phone = document.getElementById('st-login-phone').value.trim();
+    const password = document.getElementById('st-login-pass').value.trim();
+    if (!phone || !password) { alert('أدخل البيانات!'); return; }
+
+    btn.disabled = true; btn.innerText = '⏳ جاري التحقق...';
+    const email = phoneToEmail(phone);
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then(cred => {
+            return db.ref('authorized_students/' + phone).once('value');
+        })
+        .then(snap => {
+            btn.disabled = false; btn.innerText = '🎯 دخول';
+            if (!snap.exists()) {
+                auth.signOut();
+                alert('❌ حسابك لم يتم اعتماده من الإدارة بعد!');
+                return;
+            }
+            currentUser = { ...snap.val(), role: 'student', uid: auth.currentUser.uid };
+            delete currentUser.password;
+            localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
+            enterStudentDashboard();
+        })
+        .catch(err => {
+            btn.disabled = false; btn.innerText = '🎯 دخول';
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                alert('❌ رقم الهاتف أو كلمة المرور غير صحيحة!');
+            } else {
+                alert('❌ خطأ: ' + err.message);
+            }
+        });
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   [11] دخول المعلم — Firebase Auth
+   ═══════════════════════════════════════════════════════════════ */
+function handleTeacherLogin(btn) {
+    const code = document.getElementById('teacher-login-id').value.trim().toUpperCase();
+    const pass = document.getElementById('teacher-login-pass').value.trim();
+    if (!code || !pass) { alert('أدخل البيانات!'); return; }
+
+    btn.disabled = true; btn.innerText = '⏳ جاري التحقق...';
+    const email = codeToEmail(code);
+
+    auth.signInWithEmailAndPassword(email, pass)
+        .then(cred => {
+            return db.ref('teachers/' + code).once('value');
+        })
+        .then(snap => {
+            btn.disabled = false; btn.innerText = '⚙ دخول';
+            if (!snap.exists()) {
+                auth.signOut();
+                alert('❌ كود المعلم غير موجود!');
+                return;
+            }
+            const t = snap.val();
+            currentUser = { ...t, id: code, role: 'teacher', uid: auth.currentUser.uid };
+            delete currentUser.password;
+            localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('teacher-dashboard').classList.remove('hidden');
+            document.getElementById('chat-fab').classList.remove('hidden');
+            loadTeacherDashboardData();
+            listenToMyNotifications(currentUser.id);
+        })
+        .catch(err => {
+            btn.disabled = false; btn.innerText = '⚙ دخول';
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                alert('❌ كود المعلم أو كلمة المرور غير صحيحة!');
+            } else {
+                alert('❌ خطأ: ' + err.message);
+            }
+        });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   [12] تسجيل الخروج
+   ═══════════════════════════════════════════════════════════════ */
+function logoutSession() {
+    clearAllListeners();
+    localStorage.removeItem('smart_platform_pro_user');
+    currentUser = null;
+    auth.signOut().finally(() => location.reload());
+}
+function clearAllListeners() {
+    if (chatListener) chatListener.off();
+    if (notificationListener) notificationListener.off();
+    if (coursesListener) coursesListener.off();
+    if (examsListener) examsListener.off();
+    if (historyListener) historyListener.off();
+    if (forumListener) forumListener.off();
+    if (announcementsListener) announcementsListener.off();
+    if (timerInterval) clearInterval(timerInterval);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   [13] الإدارة — تحقق محلي (سيتم ترقيته لاحقاً)
+   ═══════════════════════════════════════════════════════════════ */
+function verifyAdminAccess(btn) {
+    const pass = document.getElementById('admin-pass-input').value.trim();
+    if (!pass) { alert('أدخل كلمة السر!'); return; }
+    
+    btn.disabled = true;
+    btn.innerText = '⏳ جاري التحقق...';
+    
+    // ⚠️ مؤقت: كلمة السر محلية حتى نرقّيها لـ Firebase Auth
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.innerText = '🔓 فتح اللوحة';
+        
+        // كلمة السر الافتراضية (هنغيرها من Firebase)
+        if (pass === 'Mohammed@2026#Admin') {
+            document.getElementById('admin-auth-box').classList.add('hidden');
+            document.getElementById('admin-panel-content').classList.remove('hidden');
+            showLiveNotification('🔓 تم فتح اللوحة');
+            document.getElementById('admin-pass-input').value = '';
+        } else {
+            alert('❌ كلمة سر غير صحيحة!');
+        }
+    }, 500);
+}
+
 function loadAdminPendingStudents() {
     db.ref('pending_students').on('value', snap => {
         const data = snap.val();
@@ -952,11 +1177,16 @@ function loadAdminTeachersList() {
     });
 }
 function adminDeleteTeacher(tId) {
-    if (confirm(`حذف المعلم ${tId} نهائياً؟`)) {
-        db.ref('teachers/' + tId).remove().then(() => {
-            db.ref(`courses/${tId}`).remove();
-            showLiveNotification('🗑 تم الحذف');
-        });
+    if (confirm(`حذف المعلم ${tId} نهائياً وكل محتواه؟`)) {
+        const tasks = [
+            db.ref('teachers/' + tId).remove(),
+            db.ref(`courses/${tId}`).remove(),
+            db.ref(`teacher_wallets/${tId}`).remove(),
+            db.ref(`teacher_students/${tId}`).remove(),
+            db.ref(`join_requests/${tId}`).remove(),
+            db.ref(`video_analytics/${tId}`).remove()
+        ];
+        Promise.all(tasks).then(() => showLiveNotification('🗑 تم الحذف بالكامل'));
     }
 }
 function adminRechargeWallet() {
@@ -965,20 +1195,23 @@ function adminRechargeWallet() {
     if (!phone || isNaN(pts) || pts <= 0) { alert('بيانات غير صحيحة!'); return; }
     db.ref('authorized_students/' + phone).once('value', snap => {
         if (!snap.exists()) { alert('❌ الطالب غير معتمد!'); return; }
-        db.ref('wallets/' + phone).once('value', wSnap => {
-            const w = wSnap.val() || { points: 0 };
-            db.ref('wallets/' + phone).set({ points: w.points + pts }).then(() => {
-                showLiveNotification(`✅ تمت إضافة ${pts} نقطة`);
-                pushNotification(phone, `تم شحن محفظتك بـ ${pts} نقطة 💰`, 'wallet');
-                document.getElementById('admin-wallet-phone').value = '';
-                document.getElementById('admin-wallet-points').value = '';
-            });
+        db.ref('wallets/' + phone).transaction(w => {
+            if (!w) w = { points: 0 };
+            w.points = (w.points || 0) + pts;
+            return w;
+        }).then(() => {
+            showLiveNotification(`✅ تمت إضافة ${pts} نقطة`);
+            pushNotification(phone, `تم شحن محفظتك بـ ${pts} نقطة 💰`, 'wallet');
+            document.getElementById('admin-wallet-phone').value = '';
+            document.getElementById('admin-wallet-points').value = '';
         });
     });
 }
 
-/* ═══════════════ تسجيل الطلاب ═══════════════ */
-async function submitStudentRegistration() {
+/* ═══════════════════════════════════════════════════════════════
+   [14] تسجيل الطلاب
+   ═══════════════════════════════════════════════════════════════ */
+async function submitStudentRegistration(btn) {
     const name = document.getElementById('reg-name').value.trim();
     const phone = document.getElementById('reg-phone').value.trim();
     const parentPhone = document.getElementById('reg-parent').value.trim();
@@ -986,14 +1219,51 @@ async function submitStudentRegistration() {
     const fileInput = document.getElementById('reg-file');
     if (!name || !phone || !parentPhone || !password || !fileInput.files.length) { alert('برجاء استيفاء جميع البيانات!'); return; }
     if (!/^01[0-9]{9}$/.test(phone)) { alert('رقم هاتف غير صحيح!'); return; }
+    if (password.length < 6) { alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل!'); return; }
+
+    btn.disabled = true; btn.innerText = '⏳ جاري الإرسال...';
     try {
         toggleLoading(true, 'جاري رفع الهوية...');
         const url = await uploadFileToStorage(fileInput.files[0], 'student_ids');
-        await db.ref('pending_students/' + phone).set({ name, phone, parentPhone, password, fileData: url, timestamp: Date.now() });
+        
+        // ⭐ إنشاء حساب في Firebase Auth
+        toggleLoading(true, 'جاري إنشاء الحساب...');
+        const email = phoneToEmail(phone);
+        let fbUser;
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            fbUser = cred.user;
+        } catch (authErr) {
+            // لو الإيميل موجود، نجرب نسجل دخول ونكمل
+            if (authErr.code === 'auth/email-already-in-use') {
+                toggleLoading(false);
+                alert('❌ هذا الرقم مسجل بالفعل!');
+                btn.disabled = false; btn.innerText = '🚀 إرسال الطلب';
+                return;
+            }
+            throw authErr;
+        }
+        
+        // ⭐ نسجل بيانات الطلب في pending_students
+        await db.ref('pending_students/' + phone).set({
+            name, phone, parentPhone,
+            uid: fbUser.uid,
+            fileData: url, timestamp: Date.now()
+        });
+        
+        // ⭐ نطلع المستخدم
+        await auth.signOut();
+        
         toggleLoading(false);
-        showLiveNotification('✅ تم إرسال طلبك!');
+        showLiveNotification('✅ تم إرسال طلبك! انتظر موافقة الإدارة');
         switchLoginMode('student');
-    } catch (e) { toggleLoading(false); alert('خطأ: ' + e.message); }
+    } catch (e) {
+        toggleLoading(false);
+        alert('خطأ: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = '🚀 إرسال الطلب';
+    }
 }
 function approveStudent(phone) {
     db.ref('pending_students/' + phone).once('value', snap => {
@@ -1006,60 +1276,42 @@ function approveStudent(phone) {
 function rejectStudent(phone) {
     db.ref('pending_students/' + phone).remove().then(() => showLiveNotification('❌ تم الرفض'));
 }
-function addNewTeacher() {
+async function addNewTeacher() {
     const name = document.getElementById('new-t-name').value.trim();
     const subject = document.getElementById('new-t-subject').value.trim();
-    const code = document.getElementById('new-t-code').value.trim();
+    const code = document.getElementById('new-t-code').value.trim().toUpperCase();
     const password = document.getElementById('new-t-pass').value.trim();
     if (!name || !code || !password || !subject) { alert('أدخل جميع البيانات!'); return; }
-    db.ref('teachers/' + code).set({ name, subject, code, password, role: 'teacher' }).then(() => {
+    if (password.length < 6) { alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل!'); return; }
+    
+    try {
+        // ⭐ إنشاء حساب Firebase Auth للمعلم
+        const email = codeToEmail(code);
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = cred.user.uid;
+        
+        // ⭐ حفظ بيانات المعلم في DB
+        await db.ref('teachers/' + code).set({
+            name, subject, code, uid, role: 'teacher'
+        });
+        
+        // ⭐ نطلع المستخدم المؤقت
+        await auth.signOut();
+        
         showLiveNotification('✅ تمت الإضافة');
         ['new-t-name','new-t-subject','new-t-code','new-t-pass'].forEach(id => document.getElementById(id).value = '');
-    });
+    } catch (e) {
+        if (e.code === 'auth/email-already-in-use') {
+            alert('❌ كود المعلم مستخدم بالفعل!');
+        } else {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
 }
 
-/* ═══════════════ دخول ═══════════════ */
-function handleStudentLogin() {
-    const phone = document.getElementById('st-login-phone').value.trim();
-    const password = document.getElementById('st-login-pass').value.trim();
-    if (!phone || !password) { alert('أدخل البيانات!'); return; }
-    db.ref('authorized_students/' + phone).once('value', snap => {
-        const st = snap.val();
-        if (st) {
-            if (st.password === password) {
-                currentUser = { ...st, role: 'student' };
-                localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
-                enterStudentDashboard();
-            } else alert('❌ كلمة المرور غير صحيحة!');
-        } else alert('❌ هذا الرقم غير مصرح!');
-    });
-}
-function handleTeacherLogin() {
-    const code = document.getElementById('teacher-login-id').value.trim();
-    const pass = document.getElementById('teacher-login-pass').value.trim();
-    if (!code || !pass) { alert('أدخل البيانات!'); return; }
-    db.ref('teachers/' + code).once('value', snap => {
-        const t = snap.val();
-        if (t && t.password === pass) {
-            currentUser = { ...t, id: code, role: 'teacher' };
-            localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('teacher-dashboard').classList.remove('hidden');
-            document.getElementById('chat-fab').classList.remove('hidden');
-            loadTeacherDashboardData();
-            listenToMyNotifications(currentUser.id);
-        } else alert('❌ بيانات غير صحيحة!');
-    });
-}
-function logoutSession() { clearAllListeners(); localStorage.removeItem('smart_platform_pro_user'); location.reload(); }
-function clearAllListeners() {
-    try { db.ref().off(); } catch(e) {}
-    if (chatListener) chatListener.off();
-    if (notificationListener) notificationListener.off();
-    clearInterval(timerInterval);
-}
-
-/* ═══════════════ بناء المحتوى ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [15] بناء المحتوى
+   ═══════════════════════════════════════════════════════════════ */
 function addCourseVideoField() {
     const c = document.getElementById('course-videos-container');
     const div = document.createElement('div');
@@ -1104,19 +1356,30 @@ function addCourseExamQuestion(type) {
     c.appendChild(card);
 }
 
-/* ═══════════════ ⭐ النشر الذكي حسب النوع ⭐ ═══════════════ */
-async function publishAdvancedCourse() {
+/* ═══════════════════════════════════════════════════════════════
+   [16] النشر
+   ═══════════════════════════════════════════════════════════════ */
+async function publishAdvancedCourse(btn) {
+    if (isPublishing) return;
+
     const title = document.getElementById('course-title').value.trim();
     const price = currentPublishType === 'exam' ? 0 : parseInt(document.getElementById('course-price').value);
     const desc = document.getElementById('course-desc').value.trim();
 
     if (!title) { alert('أدخل العنوان!'); return; }
-    if (currentPublishType !== 'exam' && isNaN(price)) { alert('أدخل السعر!'); return; }
+    if (title.length < 3) { alert('العنوان قصير جداً!'); return; }
+    if (currentPublishType !== 'exam') {
+        if (isNaN(price) || price < 0) { alert('أدخل سعر صحيح (0 أو أكثر)!'); return; }
+    }
+
+    isPublishing = true;
+    btn.disabled = true;
+    const oldText = btn.innerText;
+    btn.innerText = '⏳ جاري النشر...';
 
     try {
         toggleLoading(true, 'جاري رفع المحتوى...');
 
-        // 1. جمع الفيديوهات (فقط إذا كان النوع full أو video)
         let videos = [];
         if (currentPublishType === 'full' || currentPublishType === 'video') {
             document.querySelectorAll('#course-videos-container > div').forEach(div => {
@@ -1131,7 +1394,6 @@ async function publishAdvancedCourse() {
             }
         }
 
-        // 2. جمع الصور (فقط إذا كان النوع full أو images)
         let images = [];
         if (currentPublishType === 'full' || currentPublishType === 'images') {
             for (const div of document.querySelectorAll('#course-images-container > div')) {
@@ -1149,7 +1411,6 @@ async function publishAdvancedCourse() {
             }
         }
 
-        // 3. جمع الامتحان (فقط إذا كان النوع full أو exam)
         let examData = null;
         if (currentPublishType === 'full' || currentPublishType === 'exam') {
             const examTitle = document.getElementById('course-exam-title').value.trim();
@@ -1194,21 +1455,17 @@ async function publishAdvancedCourse() {
             };
         }
 
-        // 4. تحديد نوع المحتوى للتخزين
-        const contentType = currentPublishType;
-
         const courseId = 'course_' + Date.now();
         await db.ref(`courses/${currentUser.id}/${courseId}`).set({
             title, price: price || 0, desc,
             videos, images, examData,
-            contentType, // ⭐ نوع المحتوى
+            contentType: currentPublishType,
             timestamp: Date.now()
         });
 
         toggleLoading(false);
         showLiveNotification('🚀 تم النشر بنجاح!');
 
-        // تفريغ النموذج
         ['course-title','course-price','course-desc','course-exam-title'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
@@ -1220,10 +1477,16 @@ async function publishAdvancedCourse() {
     } catch (error) {
         toggleLoading(false);
         alert('خطأ: ' + error.message);
+    } finally {
+        isPublishing = false;
+        btn.disabled = false;
+        btn.innerText = oldText;
     }
 }
 
-/* ═══════════════ لوحة المعلم ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [17] لوحة المعلم
+   ═══════════════════════════════════════════════════════════════ */
 function loadTeacherDashboardData() {
     document.getElementById('teacher-dash-title').innerText = `لوحة المعلم: ${currentUser.name}`;
     document.getElementById('teacher-welcome-msg').innerText = `التخصص: ${currentUser.subject} | الكود: ${currentUser.id}`;
@@ -1233,7 +1496,6 @@ function loadTeacherDashboardData() {
         document.getElementById('teacher-wallet-display').innerText = `${w.points} نقطة`;
     });
 
-    // إدارة المحتوى المنشور - مع عرض النوع
     db.ref(`courses/${currentUser.id}`).on('value', snap => {
         const courses = snap.val() || {};
         const c = document.getElementById('teacher-manage-courses-list');
@@ -1241,7 +1503,6 @@ function loadTeacherDashboardData() {
         Object.keys(courses).forEach(cId => {
             const co = courses[cId]; hasC = true;
             const isLocked = co.locked === true;
-            // شارة النوع
             const typeBadges = {
                 'full': '<span class="badge badge-accent">📚 كورس شامل</span>',
                 'video': '<span class="badge badge-info">🎥 فيديوهات</span>',
@@ -1265,7 +1526,6 @@ function loadTeacherDashboardData() {
         c.innerHTML = hasC ? html : '<p style="color:var(--text-muted);">لا يوجد محتوى منشور.</p>';
     });
 
-    // التحليلات
     db.ref(`video_analytics/${currentUser.id}`).on('value', snap => {
         const a = snap.val() || {};
         const c = document.getElementById('teacher-video-analytics-list');
@@ -1281,7 +1541,6 @@ function loadTeacherDashboardData() {
         c.innerHTML = has ? html : '<p style="color:var(--text-muted);">لا توجد بيانات.</p>';
     });
 
-    // طلبات الانضمام
     db.ref('join_requests/' + currentUser.id).on('value', snap => {
         const reqs = snap.val() || {};
         const c = document.getElementById('teacher-join-requests-list');
@@ -1302,7 +1561,6 @@ function loadTeacherDashboardData() {
         c.innerHTML = has ? html : '<p style="color:var(--text-muted);">لا توجد طلبات.</p>';
     });
 
-    // الطلاب
     db.ref('teacher_students/' + currentUser.id).on('value', snap => {
         const st = snap.val() || {};
         const c = document.getElementById('teacher-approved-students-list');
@@ -1317,7 +1575,6 @@ function loadTeacherDashboardData() {
         c.innerHTML = has ? html : '<p style="color:var(--text-muted);">لا يوجد طلاب بعد.</p>';
     });
 
-    // تصحيح المقالي
     db.ref('exam_results').on('value', snap => {
         const all = snap.val() || {};
         const c = document.getElementById('teacher-essay-grading-list');
@@ -1330,12 +1587,13 @@ function loadTeacherDashboardData() {
                         const a = r.answers[qi];
                         if (a.type === 'essay' && !a.graded) {
                             has = true;
+                            const existing = a.givenScore || '';
                             html += `<div style="background:#05080f;padding:15px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border-color);">
                                 <b>الطالب:</b> ${p} | <b>الامتحان:</b> ${escapeHtml(r.examTitle)}<br>
                                 <p style="margin:8px 0;color:var(--primary);"><b>الإجابة:</b> ${escapeHtml(a.text) || 'بدون نص'}</p>
                                 ${a.fileData ? `<div style="margin:10px 0;"><img src="${a.fileData}" style="max-width:200px;max-height:130px;border-radius:8px;" alt=""></div>` : ''}
                                 <div class="flex-row" style="align-items:center;margin-top:10px;">
-                                    <input type="number" id="grade_input_${p}_${eId}_${qi}" placeholder="الدرجة" style="max-width:150px;" min="0">
+                                    <input type="number" id="grade_input_${p}_${eId}_${qi}" placeholder="الدرجة" style="max-width:150px;" min="0" value="${existing}">
                                     <button class="btn btn-success" style="padding:10px 18px;font-size:14px;width:auto;margin-top:0;" onclick="submitEssayGrade('${p}','${eId}','${qi}')">اعتماد 🎯</button>
                                 </div>
                             </div>`;
@@ -1348,6 +1606,8 @@ function loadTeacherDashboardData() {
     });
 }
 function toggleCourseLock(tId, cId, cur) {
+    const action = cur ? 'فتح' : 'قفل';
+    if (!confirm(`هل تريد ${action} هذا المحتوى؟`)) return;
     db.ref(`courses/${tId}/${cId}/locked`).set(!cur).then(() => {
         showLiveNotification(!cur ? '🔒 تم القفل' : '🔓 تم الفتح');
     });
@@ -1361,21 +1621,33 @@ function submitEssayGrade(p, eId, qi) {
     const v = document.getElementById(`grade_input_${p}_${eId}_${qi}`).value;
     if (v === '') { alert('أدخل الدرجة!'); return; }
     const score = parseFloat(v);
+    if (isNaN(score) || score < 0) { alert('درجة غير صحيحة!'); return; }
+
     db.ref(`exam_results/${p}/${eId}`).once('value', snap => {
         const r = snap.val();
-        if (r) {
-            r.essayScore = (r.essayScore || 0) + score;
-            r.totalScore = (r.mcqScore || 0) + r.essayScore;
-            if (!r.answers[qi]) r.answers[qi] = {};
-            r.answers[qi].graded = true;
-            r.answers[qi].givenScore = score;
-            const allGraded = Object.values(r.answers).every(a => a.type !== 'essay' || a.graded);
-            r.status = allGraded ? 'مصحح بالكامل ✅' : 'بانتظار تصحيح المقالي ⏳';
-            db.ref(`exam_results/${p}/${eId}`).set(r).then(() => {
-                showLiveNotification('✅ تم إرسال الدرجة!');
-                pushNotification(p, `تم تصحيح امتحانك "${r.examTitle}"`, 'grade');
-            });
-        }
+        if (!r) return;
+
+        if (!r.answers[qi]) r.answers[qi] = {};
+        r.answers[qi].graded = true;
+        r.answers[qi].givenScore = score;
+
+        let totalEssay = 0;
+        let allGraded = true;
+        Object.values(r.answers).forEach(a => {
+            if (a.type === 'essay') {
+                if (!a.graded) allGraded = false;
+                totalEssay += (a.givenScore || 0);
+            }
+        });
+
+        r.essayScore = totalEssay;
+        r.totalScore = (r.mcqScore || 0) + totalEssay;
+        r.status = allGraded ? 'مصحح بالكامل ✅' : 'بانتظار تصحيح المقالي ⏳';
+
+        db.ref(`exam_results/${p}/${eId}`).set(r).then(() => {
+            showLiveNotification('✅ تم إرسال الدرجة!');
+            pushNotification(p, `تم تصحيح امتحانك "${r.examTitle}"`, 'grade');
+        });
     });
 }
 function acceptStudentJoin(tId, p) {
@@ -1396,7 +1668,9 @@ function rejectStudentJoin(tId, p) {
     db.ref(`join_requests/${tId}/${p}/status`).set('rejected').then(() => showLiveNotification('❌ تم الرفض'));
 }
 
-/* ═══════════════ لوحة الطالب ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [18] لوحة الطالب
+   ═══════════════════════════════════════════════════════════════ */
 function enterStudentDashboard() {
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('student-dashboard').classList.remove('hidden');
@@ -1414,7 +1688,7 @@ function enterStudentDashboard() {
     });
 
     db.ref('teachers').once('value', snap => {
-        const teachers = snap.val() || defaultTeachers;
+        const teachers = snap.val() || {};
         let html = '<option value="">-- اختر معلماً --</option>';
         Object.keys(teachers).forEach(tId => {
             const t = teachers[tId];
@@ -1467,7 +1741,6 @@ function checkStudentJoinStatus(teacherId) {
         }
     });
 }
-
 function requestJoinTeacher(tId) {
     db.ref(`join_requests/${tId}/${currentUser.phone}`).set({
         studentName: currentUser.name,
@@ -1480,10 +1753,10 @@ function requestJoinTeacher(tId) {
         checkStudentJoinStatus(tId);
     });
 }
-
-/* ⭐ عرض الكورسات (مع استثناء الامتحانات المستقلة) ⭐ */
 function loadStudentCourses(teacherId) {
-    db.ref(`courses/${teacherId}`).on('value', snap => {
+    if (coursesListener) coursesListener.off();
+    coursesListener = db.ref(`courses/${teacherId}`);
+    coursesListener.on('value', snap => {
         const courses = snap.val() || {};
         currentCoursesList = courses;
         const c = document.getElementById('student-courses-list-box');
@@ -1492,7 +1765,6 @@ function loadStudentCourses(teacherId) {
         Object.keys(courses).forEach(cId => {
             const co = courses[cId];
             if (co.locked) return;
-            // ⭐ استثناء الامتحانات المستقلة من قسم الكورسات
             if (co.contentType === 'exam') return;
 
             has = true;
@@ -1513,10 +1785,10 @@ function loadStudentCourses(teacherId) {
         c.innerHTML = has ? html : '<p style="color:var(--text-muted);">لا توجد كورسات متاحة.</p>';
     });
 }
-
-/* ⭐ عرض الامتحانات المستقلة ⭐ */
 function loadStandaloneExams(teacherId) {
-    db.ref(`courses/${teacherId}`).on('value', snap => {
+    if (examsListener) examsListener.off();
+    examsListener = db.ref(`courses/${teacherId}`);
+    examsListener.on('value', snap => {
         const courses = snap.val() || {};
         const c = document.getElementById('student-standalone-exams-box');
         let html = '', has = false;
@@ -1542,7 +1814,6 @@ function loadStandaloneExams(teacherId) {
         c.innerHTML = has ? html : '<p style="color:var(--text-muted);">لا توجد امتحانات مستقلة حالياً.</p>';
     });
 }
-
 function getContentTypeBadge(type) {
     const badges = {
         'full': '<span class="badge badge-accent">📚 كورس شامل</span>',
@@ -1552,15 +1823,16 @@ function getContentTypeBadge(type) {
     };
     return badges[type] || badges['full'];
 }
-
-/* ⭐ بدء امتحان مستقل مباشرة ⭐ */
 function startStandaloneExam(courseId, teacherId) {
     const co = currentCoursesList[courseId];
     if (!co || !co.examData) { alert('❌ لا يوجد امتحان!'); return; }
+    const qCount = co.examData.questions.length;
+    const mins = Math.round((co.examData.duration || 1800) / 60);
+    if (!confirm(`📝 "${co.title}"\n\n📋 ${qCount} سؤال\n⏱️ ${mins} دقيقة\n\nهل أنت مستعد للبدء؟`)) return;
     startExamSession(co.examData, teacherId);
 }
 
-/* فتح كورس (مع معالجة أنواع المحتوى) */
+/* ⭐ openCourse مع Transaction للدفع الآمن ⭐ */
 function openCourse(teacherId, courseId) {
     db.ref(`courses/${teacherId}/${courseId}`).once('value', snap => {
         const c = snap.val();
@@ -1572,17 +1844,37 @@ function openCourse(teacherId, courseId) {
                 db.ref('wallets/' + currentUser.phone).once('value', wSnap => {
                     const w = wSnap.val() || { points: 0 };
                     if (w.points >= c.price) {
-                        if (confirm(`شراء "${c.title}" بـ ${c.price} نقطة؟`)) {
-                            const nb = w.points - c.price;
-                            db.ref('wallets/' + currentUser.phone).set({ points: nb }).then(() => {
-                                db.ref(`purchased_courses/${currentUser.phone}/${courseId}`).set(true);
-                                db.ref(`teacher_wallets/${teacherId}`).once('value', twSnap => {
-                                    const tw = twSnap.val() || { points: 0 };
-                                    db.ref(`teacher_wallets/${teacherId}`).set({ points: tw.points + c.price });
+                        const msg = `🎯 شراء "${c.title}"\n\n` +
+                                    `💰 السعر: ${c.price} نقطة\n` +
+                                    `💵 رصيدك الحالي: ${w.points} نقطة\n` +
+                                    `✅ رصيدك بعد الشراء: ${w.points - c.price} نقطة\n\n` +
+                                    `هل تريد المتابعة؟`;
+                        if (confirm(msg)) {
+                            // ⭐ Transaction لخصم رصيد الطالب
+                            db.ref('wallets/' + currentUser.phone).transaction(cur => {
+                                if (!cur) return { points: 0 };
+                                if (cur.points < c.price) {
+                                    // رصيد غير كافي — نلغي العملية
+                                    return;
+                                }
+                                cur.points -= c.price;
+                                return cur;
+                            }).then(result => {
+                                if (!result.committed) {
+                                    alert('❌ رصيدك تغير! حاول مرة أخرى');
+                                    return;
+                                }
+                                // ⭐ نضيف للمعلم مع Transaction
+                                db.ref('teacher_wallets/' + teacherId).transaction(tw => {
+                                    if (!tw) tw = { points: 0 };
+                                    tw.points = (tw.points || 0) + c.price;
+                                    return tw;
+                                }).then(() => {
+                                    db.ref(`purchased_courses/${currentUser.phone}/${courseId}`).set(true);
+                                    showLiveNotification('🎉 تم الشراء!');
+                                    pushNotification(teacherId, `${currentUser.name} اشترى "${c.title}"`, 'purchase');
+                                    renderCourseModalContent(teacherId, courseId, c);
                                 });
-                                showLiveNotification('🎉 تم الشراء!');
-                                pushNotification(teacherId, `${currentUser.name} اشترى "${c.title}"`, 'purchase');
-                                renderCourseModalContent(teacherId, courseId, c);
                             });
                         }
                     } else alert(`❌ رصيدك ${w.points} نقطة. السعر ${c.price}.`);
@@ -1591,7 +1883,6 @@ function openCourse(teacherId, courseId) {
         });
     });
 }
-
 function renderCourseModalContent(teacherId, courseId, c) {
     courseCache[courseId] = { teacherId, data: c };
     document.getElementById('modal-course-title').innerText = c.title;
@@ -1602,21 +1893,19 @@ function renderCourseModalContent(teacherId, courseId, c) {
         ${renderStarRating(teacherId, courseId)}
     </div>`;
 
-    // الفيديوهات
     if (c.videos && c.videos.length > 0) {
         html += `<h4 style="color:var(--accent);margin-bottom:12px;">🎥 الفيديوهات (${c.videos.length}):</h4>`;
-        c.videos.forEach(v => {
+        c.videos.forEach((v, vi) => {
             html += `<div style="background:#080d1a;padding:12px 18px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-color);flex-wrap:wrap;gap:10px;">
                 <span>🎬 ${escapeHtml(v.title)}</span>
                 <div style="display:flex;gap:6px;">
-                    <button class="btn" style="width:auto;padding:6px 16px;margin-top:0;" onclick="watchVideo('${teacherId}','${escapeHtml(v.title).replace(/'/g,"\\'")}','${v.url}')">👁️ مشاهدة</button>
+                    <button class="btn" style="width:auto;padding:6px 16px;margin-top:0;" onclick="watchVideo('${teacherId}', 'v_${courseId}_${vi}')">👁️ مشاهدة</button>
                     <button class="btn" style="width:auto;padding:6px 16px;margin-top:0;background:var(--accent);" onclick="openChat('${teacherId}','المعلم')">💬</button>
                 </div>
             </div>`;
         });
     }
 
-    // الصور
     if (c.images && c.images.length > 0) {
         html += `<h4 style="color:var(--success);margin:20px 0 12px;">🖼️ الصور (${c.images.length}):</h4>`;
         c.images.forEach(img => {
@@ -1627,7 +1916,6 @@ function renderCourseModalContent(teacherId, courseId, c) {
         });
     }
 
-    // الامتحان
     if (c.examData) {
         html += `<hr style="border-color:var(--border-color);margin:25px 0;">
             <div style="text-align:center;">
@@ -1636,7 +1924,6 @@ function renderCourseModalContent(teacherId, courseId, c) {
             </div>`;
     }
 
-    // الشهادة (فقط للكورسات الشاملة)
     if (c.contentType === 'full' || c.contentType === 'video') {
         html += `<hr style="border-color:var(--border-color);margin:25px 0;">
             <div style="text-align:center;">
@@ -1647,7 +1934,6 @@ function renderCourseModalContent(teacherId, courseId, c) {
     document.getElementById('modal-course-content').innerHTML = html;
     document.getElementById('course-view-modal').classList.remove('hidden');
 }
-
 function startExamSessionFromCache(courseId, teacherId) {
     const cached = courseCache[courseId];
     if (cached && cached.data.examData) startExamSession(cached.data.examData, teacherId);
@@ -1655,16 +1941,24 @@ function startExamSessionFromCache(courseId, teacherId) {
 function closeCourseModal() {
     document.getElementById('course-view-modal').classList.add('hidden');
 }
-function watchVideo(teacherId, videoTitle, videoUrl) {
+function watchVideo(teacherId, videoKey) {
+    const parts = videoKey.split('_');
+    const courseId = parts.slice(1, -1).join('_');
+    const videoIndex = parseInt(parts[parts.length - 1]);
+    const cached = courseCache[courseId];
+    if (!cached) return;
+    const video = cached.data.videos[videoIndex];
+    if (!video) return;
+
     db.ref(`video_analytics/${teacherId}/${currentUser.phone}/${Date.now()}`).set({
-        videoTitle, timestamp: Date.now(), percent: '100%'
+        videoTitle: video.title, timestamp: Date.now(), percent: '100%'
     });
-    document.getElementById('modal-video-title').innerText = videoTitle;
+    document.getElementById('modal-video-title').innerText = video.title;
     document.getElementById('modal-video-container').innerHTML = `
         <div class="video-wrapper">
             <div class="video-shield"></div>
             <div class="video-shield-bottom"></div>
-            <iframe src="${videoUrl}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin allow-presentation" allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+            <iframe src="${video.url}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin allow-presentation" allow="accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
         </div>`;
     document.getElementById('video-modal').classList.remove('hidden');
 }
@@ -1673,7 +1967,9 @@ function closeVideoModal() {
     document.getElementById('video-modal').classList.add('hidden');
 }
 
-/* ═══════════════ الامتحانات ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [19] الامتحانات
+   ═══════════════════════════════════════════════════════════════ */
 function startExamSession(examData, teacherId) {
     closeCourseModal();
     currentExamData = examData;
@@ -1794,7 +2090,9 @@ function returnToStudentDashboard() {
     loadStudentExamHistory();
 }
 function loadStudentExamHistory() {
-    db.ref('exam_results/' + currentUser.phone).on('value', snap => {
+    if (historyListener) historyListener.off();
+    historyListener = db.ref('exam_results/' + currentUser.phone);
+    historyListener.on('value', snap => {
         const results = snap.val() || {};
         const c = document.getElementById('student-history-table-container');
         let html = '<table><tr><th>الامتحان</th><th>الدرجة</th><th>الكلية</th><th>الحالة</th></tr>';
@@ -1809,7 +2107,9 @@ function loadStudentExamHistory() {
     });
 }
 
-/* ═══════════════ المنتدى ═══════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   [20] المنتدى
+   ═══════════════════════════════════════════════════════════════ */
 function publishForumPost() {
     const t = document.getElementById('forum-post-title').value.trim();
     const c = document.getElementById('forum-post-content').value.trim();
@@ -1824,7 +2124,9 @@ function publishForumPost() {
     });
 }
 function loadStudentForumPosts() {
-    db.ref('forum_posts').on('value', snap => {
+    if (forumListener) forumListener.off();
+    forumListener = db.ref('forum_posts');
+    forumListener.on('value', snap => {
         const posts = snap.val() || {};
         const c = document.getElementById('forum-posts-container');
         let html = '', has = false;
