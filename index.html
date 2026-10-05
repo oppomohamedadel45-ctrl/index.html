@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المنصة التعليمية الذكية الشاملة - إصدار المنتدى والمجتمع التعليمي (محدث ومحمي)</title>
-    <!-- Firebase SDK (App, Database, Storage) -->
+    <title>المنصة التعليمية الذكية الشاملة v2.0 - إصدار المنتدى والمجتمع</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -26,6 +24,23 @@
             --text-muted: #94a3b8;
         }
 
+        /* الثيم الفاتح */
+        body.light-theme {
+            --bg-deep: #f1f5f9;
+            --bg-card: #ffffff;
+            --border-color: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+        }
+        body.light-theme input,
+        body.light-theme select,
+        body.light-theme textarea,
+        body.light-theme table,
+        body.light-theme .card-box,
+        body.light-theme #forum-posts-container > div { background: #f8fafc !important; }
+        body.light-theme .tabs-nav { background: #e2e8f0 !important; }
+        body.light-theme th { background: #e2e8f0 !important; color: #0f172a !important; }
+
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         
         body { 
@@ -35,6 +50,7 @@
             padding: 15px;
             background-image: radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.07) 0%, transparent 45%),
                               radial-gradient(circle at 85% 85%, rgba(124, 58, 237, 0.07) 0%, transparent 45%);
+            transition: background 0.3s;
         }
 
         .container { max-width: 1200px; margin: 0 auto; background: var(--bg-card); padding: 35px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); border: 1px solid var(--border-color); position: relative; overflow: hidden; }
@@ -55,7 +71,7 @@
 
         .form-group { margin-bottom: 20px; text-align: right; }
         label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--text-muted); font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 14px 18px; background: #080d1a; border: 1.5px solid var(--border-color); border-radius: 12px; color: white; font-size: 15px; outline: none; transition: 0.3s; }
+        input, select, textarea { width: 100%; padding: 14px 18px; background: #080d1a; border: 1.5px solid var(--border-color); border-radius: 12px; color: var(--text-main); font-size: 15px; outline: none; transition: 0.3s; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 12px rgba(37, 99, 235, 0.3); }
         
         .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; background: var(--primary); color: white; margin-top: 10px; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.3); }
@@ -83,54 +99,24 @@
         .badge { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-block; }
         .badge-success { background: rgba(5, 150, 105, 0.2); color: var(--success); border: 1px solid rgba(5, 150, 105, 0.4); }
         .badge-warning { background: rgba(217, 119, 6, 0.2); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.4); }
+        .badge-danger { background: rgba(220, 38, 38, 0.2); color: var(--danger); border: 1px solid rgba(220, 38, 38, 0.4); }
 
-        /* طبقة حماية إضافية فوق الفيديو لمنع أي نقرات أو تفاعل مع أزرار المشاركة */
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-        .video-shield {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 48px; /* حجب الشريط العلوي لروابط ومشاركة يوتيوب */
-            z-index: 10;
-            background: transparent;
-        }
-        .video-shield-bottom {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 70px;
-            height: 55px; /* حجب زر نسخ الرابط أسفل اليمين في يوتيوب */
-            z-index: 10;
-            background: transparent;
-        }
+        .video-wrapper { position: relative; width: 100%; height: 100%; background: #000; }
+        .video-shield { position: absolute; top: 0; left: 0; width: 100%; height: 48px; z-index: 10; background: transparent; }
+        .video-shield-bottom { position: absolute; bottom: 0; right: 0; width: 70px; height: 55px; z-index: 10; background: transparent; }
 
-        /* بانر الإشعارات العلوية */
         #live-notification-banner {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
+            color: white; padding: 12px 30px; border-radius: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 99999;
-            font-weight: 700;
-            font-size: 15px;
-            display: none;
-            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 99999; font-weight: 700; font-size: 15px;
+            display: none; border: 1px solid rgba(255,255,255,0.2);
             animation: slideDown 0.4s ease;
+            max-width: 90%; text-align: center;
         }
         @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 
-        /* مؤشر التحميل والرفع */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(5, 8, 15, 0.85); z-index: 999999;
@@ -143,25 +129,87 @@
             animation: spin 1s linear infinite; margin-bottom: 15px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* زر تبديل الثيم */
+        #theme-toggle {
+            position: fixed; top: 15px; left: 15px; z-index: 9999;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+        #theme-toggle:hover { transform: scale(1.1); }
+
+        /* شات */
+        #chat-messages::-webkit-scrollbar { width: 6px; }
+        #chat-messages::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* النجوم للتقييم */
+        .star-rating { font-size: 22px; color: #fbbf24; cursor: pointer; user-select: none; }
+        .star-rating span { transition: 0.2s; display: inline-block; }
+        .star-rating span:hover { transform: scale(1.2); }
+
+        /* زر عائم للشات */
+        #chat-fab {
+            position: fixed; bottom: 20px; left: 20px; z-index: 9997;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; border: none; cursor: pointer; font-size: 24px;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+            transition: transform 0.3s;
+        }
+        #chat-fab:hover { transform: scale(1.1); }
+        #chat-fab .unread-badge {
+            position: absolute; top: -5px; right: -5px;
+            background: var(--danger); color: white; border-radius: 50%;
+            width: 22px; height: 22px; font-size: 12px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* بانر ترحيب */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15));
+            border: 1px solid var(--primary);
+            padding: 20px; border-radius: 16px; margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+        .welcome-banner h2 { margin: 0; text-align: right; color: var(--primary); font-size: 1.3rem; }
+        .welcome-banner p { color: var(--text-muted); margin-top: 5px; font-size: 14px; }
+
+        /* طباعة الشهادة */
+        @media print {
+            body * { visibility: hidden; }
+            #certificate-modal, #certificate-modal * { visibility: visible; }
+            #certificate-modal { position: absolute; inset: 0; background: white !important; }
+            #certificate-modal button { display: none !important; }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <!-- مؤشر الرفع والتحميل العام -->
+    <!-- زر تبديل الثيم -->
+    <button id="theme-toggle" onclick="toggleTheme()" title="تبديل المظهر">🌓</button>
+
+    <!-- زر الشات العائم -->
+    <button id="chat-fab" class="hidden" onclick="toggleChatFab()" title="المحادثات">
+        💬
+        <span class="unread-badge hidden" id="chat-unread-count">0</span>
+    </button>
+
     <div id="loading-overlay" class="hidden">
         <div class="spinner"></div>
         <span id="loading-text">جاري رفع الملفات ومعالجة البيانات...</span>
     </div>
 
-    <!-- بانر الإشعارات العائم -->
     <div id="live-notification-banner">مرحباً بك في المنصة التعليمية الذكية</div>
 
 <div class="container">
     <div style="text-align: center; margin-bottom: 20px; font-size: 14px; color: var(--primary); font-weight: 900; letter-spacing: 0.5px;">
-        🌟 النظام التعليمي الشامل والمطور - إشراف محمد عادل 🚀
+        🌟 النظام التعليمي الشامل والمطور v2.0 - إشراف محمد عادل 🚀
     </div>
 
-    <!-- شاشة تسجيل الدخول الرئيسية -->
+    <!-- شاشة تسجيل الدخول -->
     <div id="login-screen">
         <h1 style="color: var(--primary);">المنصة التعليمية الذكية 🚀</h1>
         <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">بيئة تعليمية متكاملة لطلاب الثانوية العامة والمعلمين (مع تخزين سحابي آمن ومشفر)</p>
@@ -173,7 +221,6 @@
             <button class="tab-btn" id="tab-btn-admin" onclick="switchLoginMode('admin')" style="color: var(--danger);">👑 الإدارة العليا</button>
         </div>
 
-        <!-- تسجيل طالب جديد -->
         <div id="box-student-register" class="card-box hidden" style="max-width: 580px; margin: 0 auto; border-color: var(--success);">
             <h3 style="color: var(--success);">📝 طلب انضمام طالب جديد (بانتظار موافقة الإدارة)</h3>
             <div class="form-group"><label>الاسم الرباعي:</label><input type="text" id="reg-name" placeholder="محمد أحمد محمود"></div>
@@ -184,7 +231,6 @@
             <button class="btn btn-success" onclick="submitStudentRegistration()">إرسال طلب الانضمام رسمياً 🚀</button>
         </div>
 
-        <!-- دخول الطالب -->
         <div id="box-student-login" class="card-box" style="max-width: 500px; margin: 0 auto;">
             <h3>👤 تسجيل دخول الطالب</h3>
             <div class="form-group"><label>رقم الهاتف المعتمد:</label><input type="tel" id="st-login-phone" placeholder="01012345678" maxlength="11"></div>
@@ -192,7 +238,6 @@
             <button class="btn" onclick="handleStudentLogin()">دخول لوحة الطالب 🎯</button>
         </div>
 
-        <!-- دخول المعلم -->
         <div id="box-teacher-login" class="card-box hidden" style="max-width: 500px; margin: 0 auto;">
             <h3>👨‍🏫 بوابة المعلمين الذكية</h3>
             <div class="form-group"><label>كود المعلم التعريفي:</label><input type="text" id="teacher-login-id" placeholder="مثال: TCH-101"></div>
@@ -200,48 +245,63 @@
             <button class="btn btn-warning" onclick="handleTeacherLogin()">دخول لوحة المعلم ⚙</button>
         </div>
 
-        <!-- دخول الإدارة العامة -->
-        <div id="box-admin-login" class="card-box hidden" style="max-width: 700px; margin: 0 auto; border-color: var(--danger);">
+        <div id="box-admin-login" class="card-box hidden" style="max-width: 750px; margin: 0 auto; border-color: var(--danger);">
             <h3 style="color: var(--danger);">👑 لوحة تحكم الإدارة العامة (محمد عادل)</h3>
             <div id="admin-auth-box">
                 <div class="form-group"><label>كلمة سر الإدارة العليا:</label><input type="password" id="admin-pass-input" placeholder="أدخل كلمة السر..."></div>
                 <button class="btn btn-danger" onclick="verifyAdminAccess()">فك قفل لوحة الإدارة 🔓</button>
             </div>
             <div id="admin-panel-content" class="hidden">
-                <h4 style="color: var(--warning); margin-bottom: 12px;">📋 طلبات الطلاب المعلقة للتسجيل:</h4>
-                <div id="admin-pending-students-list" style="max-height: 240px; overflow-y: auto; margin-bottom: 20px; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px;">
-                    <p style="color: var(--text-muted);">لا توجد طلبات معلقة.</p>
+                <div class="tabs-nav" style="margin-bottom: 20px;">
+                    <button class="tab-btn active" onclick="switchAdminTab('students', this)">👥 الطلاب</button>
+                    <button class="tab-btn" onclick="switchAdminTab('wallets', this)">💰 المحافظ</button>
+                    <button class="tab-btn" onclick="switchAdminTab('teachers', this)">👨‍🏫 المعلمون</button>
+                    <button class="tab-btn" onclick="switchAdminTab('announcements', this)">📢 الإعلانات</button>
                 </div>
-                
-                <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <h4 style="color: var(--success); margin-bottom: 12px;">💳 شحن محفظة الطلاب بالنقاط (1 جنيه = 1 نقطة):</h4>
-                <div class="form-group"><label>رقم هاتف الطالب:</label><input type="text" id="admin-wallet-phone" placeholder="01012345678"></div>
-                <div class="form-group"><label>عدد النقاط المراد إضافتها:</label><input type="number" id="admin-wallet-points" placeholder="مثال: 300"></div>
-                <button class="btn btn-success" onclick="adminRechargeWallet()">شحن المحفظة فوراً 💰</button>
 
-                <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <h4 style="color: var(--primary); margin-bottom: 12px;">➕ إضافة معلم جديد للنظام:</h4>
-                <div class="form-group"><label>اسم المعلم:</label><input type="text" id="new-t-name" placeholder="أستاذ المادة..."></div>
-                <div class="form-group"><label>المادة الدراسية:</label><input type="text" id="new-t-subject" placeholder="مثال: الفيزياء"></div>
-                <div class="form-group"><label>كود المعلم:</label><input type="text" id="new-t-code" placeholder="TCH-105"></div>
-                <div class="form-group"><label>الرقم السري:</label><input type="password" id="new-t-pass" placeholder="كلمة المرور"></div>
-                <button class="btn btn-success" onclick="addNewTeacher()">إضافة المعلم رسمياً 🚀</button>
+                <div id="admin-tab-students">
+                    <h4 style="color: var(--warning); margin-bottom: 12px;">📋 طلبات الطلاب المعلقة للتسجيل:</h4>
+                    <div id="admin-pending-students-list" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px;">
+                        <p style="color: var(--text-muted);">لا توجد طلبات معلقة.</p>
+                    </div>
+                </div>
 
-                <hr style="border-color: var(--border-color); margin: 20px 0;">
-                <h4 style="color: var(--danger); margin-bottom: 12px;">🗑️ إدارة المعلمين المسجلين:</h4>
-                <div id="admin-teachers-management-list" style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px;">
-                    <p style="color: var(--text-muted);">جاري التحميل...</p>
+                <div id="admin-tab-wallets" class="hidden">
+                    <h4 style="color: var(--success); margin-bottom: 12px;">💳 شحن محفظة الطلاب بالنقاط (1 جنيه = 1 نقطة):</h4>
+                    <div class="form-group"><label>رقم هاتف الطالب:</label><input type="text" id="admin-wallet-phone" placeholder="01012345678"></div>
+                    <div class="form-group"><label>عدد النقاط المراد إضافتها:</label><input type="number" id="admin-wallet-points" placeholder="مثال: 300"></div>
+                    <button class="btn btn-success" onclick="adminRechargeWallet()">شحن المحفظة فوراً 💰</button>
+                </div>
+
+                <div id="admin-tab-teachers" class="hidden">
+                    <h4 style="color: var(--primary); margin-bottom: 12px;">➕ إضافة معلم جديد للنظام:</h4>
+                    <div class="form-group"><label>اسم المعلم:</label><input type="text" id="new-t-name" placeholder="أستاذ المادة..."></div>
+                    <div class="form-group"><label>المادة الدراسية:</label><input type="text" id="new-t-subject" placeholder="مثال: الفيزياء"></div>
+                    <div class="form-group"><label>كود المعلم:</label><input type="text" id="new-t-code" placeholder="TCH-105"></div>
+                    <div class="form-group"><label>الرقم السري:</label><input type="password" id="new-t-pass" placeholder="كلمة المرور"></div>
+                    <button class="btn btn-success" onclick="addNewTeacher()">إضافة المعلم رسمياً 🚀</button>
+
+                    <hr style="border-color: var(--border-color); margin: 20px 0;">
+                    <h4 style="color: var(--danger); margin-bottom: 12px;">🗑️ إدارة المعلمين المسجلين:</h4>
+                    <div id="admin-teachers-management-list" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px;">
+                        <p style="color: var(--text-muted);">جاري التحميل...</p>
+                    </div>
+                </div>
+
+                <div id="admin-tab-announcements" class="hidden">
+                    <h4 style="color: var(--warning); margin-bottom: 12px;">📢 نشر إعلان عام لكل المنصة:</h4>
+                    <div class="form-group"><label>نص الإعلان:</label><textarea id="new-announcement-text" rows="3" placeholder="اكتب الإعلان هنا..."></textarea></div>
+                    <button class="btn btn-warning" onclick="postAnnouncement()">نشر الإعلان 📢</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- لوحة تحكم المعلم الشاملة -->
+    <!-- لوحة المعلم -->
     <div id="teacher-dashboard" class="hidden">
         <h1 id="teacher-dash-title">لوحة تحكم المعلم</h1>
         <p style="text-align:center; color: var(--success); font-weight:800; margin-bottom:25px;" id="teacher-welcome-msg"></p>
 
-        <!-- محفظة المعلم -->
         <div class="card-box" style="border-color: var(--success); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
                 <h3 style="color: var(--success); margin-bottom: 5px;">💰 أرباح محفظة المعلم (نقاط اشتراكات الكورسات)</h3>
@@ -253,7 +313,6 @@
             </div>
         </div>
         
-        <!-- زر رفع الفيديو الحي لاستوديو يوتيوب -->
         <div class="card-box" style="border-color: #ff0000; background: rgba(255, 0, 0, 0.02);">
             <h3 style="color: #ff0000;">🔴 رفع الفيديو المباشر إلى استوديو يوتيوب (غير مدرج تلقائياً)</h3>
             <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">انقر على الزر لفتح استوديو يوتيوب، اختر الفيديو واجعله غير مدرج، ثم انسخ رابطه وضعه مباشرة بالكورس:</p>
@@ -263,7 +322,6 @@
             </button>
         </div>
 
-        <!-- بناء ونشر الكورس المطور -->
         <div class="card-box" style="border-color: var(--primary);">
             <h3 style="color: var(--primary);">📚 إنشاء وتصميم كورس تعليمي شامل</h3>
             <div class="form-group"><label>عنوان الكورس:</label><input type="text" id="course-title" placeholder="مثال: الباب الأول في المادة..."></div>
@@ -293,13 +351,11 @@
             <button class="btn btn-success" style="margin-top: 15px; padding: 16px;" onclick="publishAdvancedCourse()">نشر الكورس الشامل فوراً للطلاب 🚀</button>
         </div>
 
-        <!-- إدارة كورسات المعلم -->
         <div class="card-box" style="border-color: var(--warning);">
             <h3 style="color: var(--warning);">⚙️ إدارة الكورسات (قفل أو حذف الكورس)</h3>
             <div id="teacher-manage-courses-list"><p style="color: var(--text-muted);">جاري تحميل الكورسات...</p></div>
         </div>
 
-        <!-- تقرير تفاعل الطلاب مع الفيديوهات -->
         <div class="card-box" style="border-color: var(--accent);">
             <h3 style="color: var(--accent);">📊 تقرير فتح ومشاهدة الفيديوهات للطلاب</h3>
             <div id="teacher-video-analytics-list"><p style="color: var(--text-muted);">جاري التحميل...</p></div>
@@ -323,14 +379,32 @@
         <button class="btn btn-danger" onclick="logoutSession()">تسجيل الخروج الآمن 🚪</button>
     </div>
 
-    <!-- لوحة تحكم الطالب الشاملة -->
+    <!-- لوحة الطالب -->
     <div id="student-dashboard" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h3>أهلاً بك يا بطل، <span id="welcome-name" style="color: var(--primary);"></span> 🎯</h3>
-            <button class="btn btn-danger" style="width: auto; padding: 8px 20px;" onclick="logoutSession()">تسجيل الخروج</button>
+        <!-- بانر ترحيب -->
+        <div class="welcome-banner">
+            <div>
+                <h2>أهلاً بك يا بطل، <span id="welcome-name" style="color: var(--primary);"></span> 🎯</h2>
+                <p>استمر في التقدم، كل خطوة تقربك من هدفك!</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn" style="width: auto; padding: 8px 20px; margin-top: 0;" onclick="toggleLeaderboard()">🏆 المتصدرون</button>
+                <button class="btn btn-danger" style="width: auto; padding: 8px 20px; margin-top: 0;" onclick="logoutSession()">خروج</button>
+            </div>
         </div>
 
-        <!-- الملف الشخصي والمحفظة -->
+        <!-- لوحة المتصدرين -->
+        <div id="leaderboard-container-box" class="card-box hidden" style="border-color: #fbbf24;">
+            <h3 style="color: #fbbf24;">🏆 لوحة شرف المتصدرين (Top 10)</h3>
+            <div id="leaderboard-container"><p style="color: var(--text-muted);">جاري التحميل...</p></div>
+        </div>
+
+        <!-- لوحة الإعلانات -->
+        <div id="announcements-board" class="card-box hidden" style="border-color: #d97706;">
+            <h3 style="color: #d97706;">📢 لوحة الإعلانات العامة</h3>
+            <div id="announcements-list"><p style="color: var(--text-muted);">جاري التحميل...</p></div>
+        </div>
+
         <div class="card-box" style="border-color: var(--primary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
             <div>
                 <h3 style="color: var(--primary); margin-bottom: 5px;">📇 ملف الطالب ومحفظة النقاط</h3>
@@ -342,7 +416,6 @@
             </div>
         </div>
 
-        <!-- اختيار المعلم -->
         <div class="card-box" style="border-color: var(--warning);">
             <h3 style="color: var(--warning);">🏫 اختر المعلم لعرض كورساته الشاملة</h3>
             <div class="form-group">
@@ -354,13 +427,14 @@
             <div id="teacher-join-action-box" style="margin-top: 15px;"></div>
         </div>
 
-        <!-- قسم الكورسات الشاملة -->
         <div id="student-courses-section" class="hidden card-box" style="border-color: var(--accent);">
             <h3 style="color: var(--accent);">🎓 الكورسات المتاحة (فيديوهات، صور، وامتحانات)</h3>
+            <div class="form-group" style="margin-top: 10px;">
+                <input type="text" id="course-search-input" placeholder="🔍 ابحث باسم الكورس..." oninput="searchCourses(this.value)">
+            </div>
             <div id="student-courses-list-box"><p style="color: var(--text-muted);">جاري تحميل الكورسات...</p></div>
         </div>
 
-        <!-- قسم منتدى النقاش الطلابي الجديد -->
         <div class="card-box" style="border-color: var(--success); margin-top: 25px;">
             <h3 style="color: var(--success);">💬 منتدى ومجتمع الطلاب التفاعلي</h3>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">شارك استفساراتك، ناقش زملاءك، وتبادل الخبرات الأكاديمية بحرية.</p>
@@ -376,7 +450,6 @@
             <div id="forum-posts-container"><p style="color: var(--text-muted);">جاري تحميل المنشورات...</p></div>
         </div>
 
-        <!-- سجل الدرجات -->
         <div id="student-active-section" class="hidden">
             <div class="card-box">
                 <h3>📊 سجل درجاتك ونتائج الامتحانات</h3>
@@ -394,7 +467,7 @@
         </div>
     </div>
 
-    <!-- نافذة عرض الفيديو الفردي المقيد الآمن -->
+    <!-- نافذة عرض الفيديو -->
     <div id="video-modal" class="hidden" style="position: fixed; top: 0; right: 0; left: 0; bottom: 0; background: rgba(0,0,0,0.96); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
         <div style="width: 100%; max-width: 1250px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 10px;">
             <h3 id="modal-video-title" style="color: var(--primary); font-size: 1.2rem; margin: 0;">مشاهدة الفيديو التعليمي</h3>
@@ -403,7 +476,7 @@
         <div id="modal-video-container" style="position: relative; width: 100%; max-width: 1250px; height: 82vh; overflow: hidden; border-radius: 14px; background: #000; border: 1px solid var(--border-color);"></div>
     </div>
 
-    <!-- شاشة أداء الامتحان -->
+    <!-- شاشة الامتحان -->
     <div id="exam-taking-screen" class="hidden">
         <div class="timer-box">الوقت المتبقي: <span id="timer-display">00:00</span></div>
         <div class="card-box">
@@ -420,7 +493,7 @@
         </div>
     </div>
 
-    <!-- شاشة عرض النتيجة -->
+    <!-- شاشة النتيجة -->
     <div id="exam-result-screen" class="hidden" style="text-align: center; padding: 25px;">
         <div class="card-box" style="max-width: 650px; margin: 0 auto; border-color: var(--success);">
             <h1 style="color: var(--success); margin-bottom: 12px;">🎉 تم إنهاء الامتحان وتسليمه بنجاح!</h1>
@@ -433,6 +506,43 @@
             </div>
             <button class="btn btn-success" onclick="returnToStudentDashboard()" style="max-width: 280px; margin: 0 auto;">العودة للوحة الرئيسية 🏠</button>
         </div>
+    </div>
+</div>
+
+<!-- شات عائم -->
+<div id="chat-widget" class="hidden" style="position: fixed; bottom: 90px; left: 20px; width: 340px; height: 460px; background: var(--bg-card); border: 1px solid var(--primary); border-radius: 16px; z-index: 9998; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.7);">
+    <div style="background: var(--primary); padding: 12px 16px; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+        <b id="chat-with-name" style="color: white;">محادثة</b>
+        <button onclick="closeChat()" style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">✕</button>
+    </div>
+    <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--bg-deep);"></div>
+    <div style="padding: 10px; border-top: 1px solid var(--border-color); display: flex; gap: 8px;">
+        <input id="chat-input" placeholder="اكتب رسالتك..." style="flex: 1; margin: 0;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn" style="width: auto; padding: 8px 16px; margin-top: 0;" onclick="sendChatMessage()">إرسال</button>
+    </div>
+</div>
+
+<!-- قائمة المحادثات (اختيار المعلم) -->
+<div id="chat-list-modal" class="hidden" style="position: fixed; bottom: 90px; left: 20px; width: 340px; max-height: 460px; background: var(--bg-card); border: 1px solid var(--primary); border-radius: 16px; z-index: 9998; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.7); overflow: hidden;">
+    <div style="background: var(--primary); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+        <b style="color: white;">💬 محادثاتي</b>
+        <button onclick="toggleChatFab()" style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">✕</button>
+    </div>
+    <div id="chat-list-content" style="flex: 1; overflow-y: auto; padding: 12px;"></div>
+</div>
+
+<!-- شهادة -->
+<div id="certificate-modal" class="hidden" style="position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.9); z-index: 99998; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; color: #000; padding: 40px; max-width: 800px; width: 100%; border-radius: 20px; text-align: center; position: relative; border: 8px double #1e40af;">
+        <button onclick="document.getElementById('certificate-modal').classList.add('hidden')" style="position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 24px; cursor: pointer;">✕</button>
+        <h1 style="color: #1e40af; margin-bottom: 20px; font-size: 2rem;">🏆 شهادة إتمام</h1>
+        <p style="font-size: 18px; margin-bottom: 10px;">تشهد المنصة التعليمية الذكية بأن الطالب</p>
+        <h2 id="cert-student-name" style="color: #7c3aed; font-size: 32px; margin: 15px 0; font-weight: 900;"></h2>
+        <p style="font-size: 18px; margin-bottom: 10px;">قد أتم بنجاح كورس</p>
+        <h3 id="cert-course-name" style="color: #059669; font-size: 24px; margin: 15px 0; font-weight: 800;"></h3>
+        <p id="cert-date" style="color: #666; margin-top: 20px;"></p>
+        <p style="color: #1e40af; margin-top: 20px; font-weight: 800;">🌟 إشراف: محمد عادل 🌟</p>
+        <button class="btn" style="background: #1e40af; color: white; margin-top: 20px; max-width: 250px; margin-inline: auto;" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
     </div>
 </div>
 
@@ -460,12 +570,19 @@
     let timeLeft = 0;
     let currentQIndex = 0;
     let studentAnswers = {};
+    let courseCache = {};          // ذاكرة مؤقتة للكورسات (لحل مشكلة JSON في onclick)
+    let chatListener = null;
+    let notificationListener = null;
+    let activeChatWith = null;
+    let activeChatName = '';
+    let currentCoursesList = {};
 
     window.onload = function() {
+        // الثيم المحفوظ
+        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
+
         db.ref('teachers').once('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                db.ref('teachers').set(defaultTeachers);
-            }
+            if (!snapshot.exists()) db.ref('teachers').set(defaultTeachers);
         });
 
         const savedUser = localStorage.getItem('smart_platform_pro_user');
@@ -475,27 +592,28 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('teacher-dashboard').classList.remove('hidden');
                 loadTeacherDashboardData();
+                listenToMyNotifications(currentUser.id);
+                document.getElementById('chat-fab').classList.remove('hidden');
+                loadChatList();
             } else if (currentUser.role === 'student') {
                 enterStudentDashboard();
             }
         }
     };
 
+    /* =============== أدوات مساعدة =============== */
     function showLiveNotification(msg) {
         const banner = document.getElementById('live-notification-banner');
         banner.innerText = msg;
         banner.style.display = 'block';
-        setTimeout(() => { banner.style.display = 'none'; }, 4500);
+        clearTimeout(banner._timer);
+        banner._timer = setTimeout(() => { banner.style.display = 'none'; }, 4500);
     }
 
     function toggleLoading(show, text = 'جاري رفع الملفات ومعالجة البيانات...') {
         const overlay = document.getElementById('loading-overlay');
         document.getElementById('loading-text').innerText = text;
-        if (show) {
-            overlay.classList.remove('hidden');
-        } else {
-            overlay.classList.add('hidden');
-        }
+        overlay.classList.toggle('hidden', !show);
     }
 
     async function uploadFileToStorage(file, folderName) {
@@ -503,10 +621,256 @@
         const filePath = `${folderName}/${Date.now()}_${file.name}`;
         const storageRef = storage.ref().child(filePath);
         const snapshot = await storageRef.put(file);
-        const downloadUrl = await snapshot.ref.getDownloadURL();
-        return downloadUrl;
+        return await snapshot.ref.getDownloadURL();
     }
 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, s => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[s]));
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        showLiveNotification(isLight ? '☀️ تم تفعيل المظهر الفاتح' : '🌙 تم تفعيل المظهر الداكن');
+    }
+
+    /* =============== الإشعارات الفورية =============== */
+    function pushNotification(targetUserId, message, type = 'info') {
+        if (!targetUserId) return;
+        db.ref('notifications/' + targetUserId).push({
+            message, type, read: false, timestamp: Date.now()
+        });
+    }
+
+    function listenToMyNotifications(userId) {
+        if (notificationListener) notificationListener.off();
+        notificationListener = db.ref('notifications/' + userId).limitToLast(1);
+        notificationListener.on('child_added', (snap) => {
+            const n = snap.val();
+            if (!n.read) {
+                showLiveNotification('🔔 ' + n.message);
+                db.ref('notifications/' + userId + '/' + snap.key + '/read').set(true);
+            }
+        });
+    }
+
+    /* =============== الشات =============== */
+    function toggleChatFab() {
+        const listModal = document.getElementById('chat-list-modal');
+        const chatWidget = document.getElementById('chat-widget');
+        if (!listModal.classList.contains('hidden')) {
+            listModal.classList.add('hidden');
+            return;
+        }
+        if (!chatWidget.classList.contains('hidden')) {
+            closeChat();
+            return;
+        }
+        listModal.classList.remove('hidden');
+        loadChatList();
+    }
+
+    function loadChatList() {
+        const container = document.getElementById('chat-list-content');
+        container.innerHTML = '<p style="color: var(--text-muted); text-align:center;">جاري التحميل...</p>';
+
+        if (currentUser.role === 'student') {
+            // الطالب: يرى المعلمون الذين انضم إليهم
+            db.ref('teachers').once('value', async (snap) => {
+                const teachers = snap.val() || {};
+                let html = '';
+                let has = false;
+                for (const tId of Object.keys(teachers)) {
+                    const joinSnap = await db.ref(`teacher_students/${tId}/${currentUser.phone}`).once('value');
+                    if (joinSnap.exists()) {
+                        has = true;
+                        const t = teachers[tId];
+                        html += `<button class="btn" style="background:#05080f; border:1px solid var(--border-color); text-align:right; padding:12px; margin-bottom:8px;" onclick="openChat('${tId}', '${escapeHtml(t.name)}')">
+                            👨‍🏫 ${escapeHtml(t.name)} <span style="color:var(--text-muted); font-size:12px; display:block;">${escapeHtml(t.subject)}</span>
+                        </button>`;
+                    }
+                }
+                container.innerHTML = has ? html : '<p style="color: var(--text-muted); text-align:center;">لم تنضم لأي معلم بعد.</p>';
+            });
+        } else {
+            // المعلم: يرى طلابه
+            db.ref('teacher_students/' + currentUser.id).once('value', (snap) => {
+                const students = snap.val() || {};
+                let html = '';
+                let has = false;
+                Object.keys(students).forEach(phone => {
+                    has = true;
+                    const st = students[phone];
+                    html += `<button class="btn" style="background:#05080f; border:1px solid var(--border-color); text-align:right; padding:12px; margin-bottom:8px;" onclick="openChat('${phone}', '${escapeHtml(st.name)}')">
+                        👨‍🎓 ${escapeHtml(st.name)} <span style="color:var(--text-muted); font-size:12px; display:block;">${phone}</span>
+                    </button>`;
+                });
+                container.innerHTML = has ? html : '<p style="color: var(--text-muted); text-align:center;">لا يوجد طلاب بعد.</p>';
+            });
+        }
+    }
+
+    function openChat(withId, withName) {
+        document.getElementById('chat-list-modal').classList.add('hidden');
+        activeChatWith = withId;
+        activeChatName = withName;
+        document.getElementById('chat-with-name').innerText = withName;
+        document.getElementById('chat-widget').classList.remove('hidden');
+        loadChatMessages();
+    }
+
+    function closeChat() {
+        if (chatListener) chatListener.off();
+        document.getElementById('chat-widget').classList.add('hidden');
+        activeChatWith = null;
+    }
+
+    function getMyChatId() {
+        return currentUser.role === 'student' ? currentUser.phone : currentUser.id;
+    }
+
+    function loadChatMessages() {
+        const myId = getMyChatId();
+        const roomId = [myId, activeChatWith].sort().join('_');
+        if (chatListener) chatListener.off();
+        chatListener = db.ref('chats/' + roomId).limitToLast(50);
+        chatListener.on('value', (snap) => {
+            const msgs = snap.val() || {};
+            const box = document.getElementById('chat-messages');
+            let html = '';
+            Object.values(msgs).forEach(m => {
+                const isMe = m.sender === myId;
+                html += `<div style="max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 14px; align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? 'var(--primary)' : '#1a2236'}; color: white; word-wrap: break-word;">
+                    ${escapeHtml(m.text)}<br><small style="opacity:0.6; font-size: 10px;">${new Date(m.timestamp).toLocaleTimeString('ar-EG')}</small>
+                </div>`;
+            });
+            box.innerHTML = html || '<p style="color: var(--text-muted); text-align:center; font-size:13px;">لا توجد رسائل بعد.</p>';
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function sendChatMessage() {
+        const txt = document.getElementById('chat-input').value.trim();
+        if (!txt || !activeChatWith) return;
+        const myId = getMyChatId();
+        const roomId = [myId, activeChatWith].sort().join('_');
+        db.ref('chats/' + roomId).push({
+            sender: myId,
+            senderName: currentUser.name,
+            text: txt,
+            timestamp: Date.now()
+        });
+        document.getElementById('chat-input').value = '';
+        pushNotification(activeChatWith, 'رسالة جديدة من ' + currentUser.name, 'chat');
+    }
+
+    /* =============== لوحة المتصدرين =============== */
+    function toggleLeaderboard() {
+        const box = document.getElementById('leaderboard-container-box');
+        box.classList.toggle('hidden');
+        if (!box.classList.contains('hidden')) loadLeaderboard();
+    }
+
+    function loadLeaderboard() {
+        db.ref('exam_results').once('value', (snap) => {
+            const all = snap.val() || {};
+            const scores = {};
+            Object.keys(all).forEach(phone => {
+                let total = 0;
+                Object.values(all[phone]).forEach(r => { total += (r.totalScore || 0); });
+                scores[phone] = { total, name: 'طالب' };
+            });
+            db.ref('authorized_students').once('value', (s2) => {
+                const students = s2.val() || {};
+                Object.keys(scores).forEach(p => {
+                    if (students[p]) scores[p].name = students[p].name;
+                });
+                const sorted = Object.entries(scores).sort((a,b) => b[1].total - a[1].total).slice(0, 10);
+                let html = '<table><tr><th>الترتيب</th><th>الطالب</th><th>مجموع النقاط</th></tr>';
+                if (sorted.length === 0) {
+                    html = '<p style="color: var(--text-muted);">لا توجد نتائج بعد.</p>';
+                } else {
+                    sorted.forEach(([phone, data], i) => {
+                        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+                        html += `<tr><td><b>${medal}</b></td><td>${escapeHtml(data.name)}</td><td><b style="color: var(--success);">${data.total}</b></td></tr>`;
+                    });
+                    html += '</table>';
+                }
+                document.getElementById('leaderboard-container').innerHTML = html;
+            });
+        });
+    }
+
+    /* =============== الإعلانات =============== */
+    function postAnnouncement() {
+        const txt = document.getElementById('new-announcement-text').value.trim();
+        if (!txt) { alert('اكتب نص الإعلان!'); return; }
+        db.ref('announcements').push({
+            text: txt, author: currentUser?.name || 'الإدارة', timestamp: Date.now()
+        }).then(() => {
+            showLiveNotification('📢 تم نشر الإعلان بنجاح!');
+            document.getElementById('new-announcement-text').value = '';
+        });
+    }
+
+    function loadAnnouncements() {
+        db.ref('announcements').limitToLast(10).on('value', (snap) => {
+            const list = snap.val() || {};
+            const box = document.getElementById('announcements-list');
+            const board = document.getElementById('announcements-board');
+            if (!box || !board) return;
+            let html = '';
+            const items = Object.values(list).reverse();
+            items.forEach(a => {
+                html += `<div style="background:#05080f; padding:12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border-color);">
+                    <b style="color: var(--warning);">${escapeHtml(a.author)}</b>
+                    <p style="margin-top:6px;">${escapeHtml(a.text)}</p>
+                    <small style="color: var(--text-muted);">${new Date(a.timestamp).toLocaleString('ar-EG')}</small>
+                </div>`;
+            });
+            box.innerHTML = html || '<p style="color: var(--text-muted);">لا توجد إعلانات.</p>';
+            if (items.length > 0) board.classList.remove('hidden');
+            else board.classList.add('hidden');
+        });
+    }
+
+    /* =============== التقييمات =============== */
+    function rateCourse(teacherId, courseId, rating) {
+        db.ref(`ratings/${teacherId}/${courseId}/${currentUser.phone}`).set({
+            rating, name: currentUser.name, timestamp: Date.now()
+        }).then(() => showLiveNotification('⭐ شكراً لتقييمك!'));
+    }
+
+    function renderStarRating(teacherId, courseId, userRating = 0) {
+        let html = `<div class="star-rating" style="text-align:center; margin:10px 0;">`;
+        for (let i = 1; i <= 5; i++) {
+            html += `<span onclick="rateCourse('${teacherId}', '${courseId}', ${i})" style="color: ${i <= userRating ? '#fbbf24' : '#475569'};">★</span>`;
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    /* =============== البحث في الكورسات =============== */
+    function searchCourses(query) {
+        const cards = document.querySelectorAll('#student-courses-list-box > div');
+        const q = query.toLowerCase().trim();
+        cards.forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+        });
+    }
+
+    /* =============== الشهادة =============== */
+    function showCertificate(courseName) {
+        document.getElementById('cert-student-name').innerText = currentUser.name;
+        document.getElementById('cert-course-name').innerText = courseName;
+        document.getElementById('cert-date').innerText = 'بتاريخ: ' + new Date().toLocaleDateString('ar-EG');
+        document.getElementById('certificate-modal').classList.remove('hidden');
+    }
+
+    /* =============== يوتيوب =============== */
     function openYouTubeStudioUpload() {
         window.open('https://studio.youtube.com/', '_blank');
         showLiveNotification('🎥 تم فتح استوديو يوتيوب في تبويب جديد للرفع السريع!');
@@ -515,19 +879,14 @@
     function autoFormatYouTubeUrl(val) {
         if (!val) return '';
         let videoId = '';
-        if (val.includes('/shorts/')) {
-            videoId = val.split('/shorts/')[1].split('?')[0];
-        } else if (val.includes('youtu.be/')) {
-            videoId = val.split('youtu.be/')[1].split('?')[0];
-        } else if (val.includes('watch?v=')) {
-            videoId = val.split('watch?v=')[1].split('&')[0];
-        } else if (val.includes('embed/')) {
-            videoId = val.split('embed/')[1].split('?')[0];
-        }
-        // إضافة معاملات الأمان لمنع الخروج وإخفاء علامات المشاركة والروابط الخارجية
-        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1` : val;
+        if (val.includes('/shorts/')) videoId = val.split('/shorts/')[1].split('?')[0];
+        else if (val.includes('youtu.be/')) videoId = val.split('youtu.be/')[1].split('?')[0];
+        else if (val.includes('watch?v=')) videoId = val.split('watch?v=')[1].split('&')[0];
+        else if (val.includes('embed/')) videoId = val.split('embed/')[1].split('?')[0];
+        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&fs=0&playsinline=1` : val;
     }
 
+    /* =============== تبديل شاشات الدخول =============== */
     function switchLoginMode(mode) {
         ['box-student-login', 'box-student-register', 'box-teacher-login', 'box-admin-login'].forEach(id => {
             document.getElementById(id).classList.add('hidden');
@@ -536,25 +895,34 @@
             document.getElementById(id).classList.remove('active');
         });
 
-        if (mode === 'student') {
-            document.getElementById('box-student-login').classList.remove('hidden');
-            document.getElementById('tab-btn-student').classList.add('active');
-        } else if (mode === 'register') {
-            document.getElementById('box-student-register').classList.remove('hidden');
-            document.getElementById('tab-btn-register').classList.add('active');
-        } else if (mode === 'teacher') {
-            document.getElementById('box-teacher-login').classList.remove('hidden');
-            document.getElementById('tab-btn-teacher').classList.add('active');
-        } else if (mode === 'admin') {
-            document.getElementById('box-admin-login').classList.remove('hidden');
-            document.getElementById('tab-btn-admin').classList.add('active');
+        const map = {
+            'student': ['box-student-login', 'tab-btn-student'],
+            'register': ['box-student-register', 'tab-btn-register'],
+            'teacher': ['box-teacher-login', 'tab-btn-teacher'],
+            'admin': ['box-admin-login', 'tab-btn-admin']
+        };
+        if (map[mode]) {
+            document.getElementById(map[mode][0]).classList.remove('hidden');
+            document.getElementById(map[mode][1]).classList.add('active');
+        }
+        if (mode === 'admin') {
             loadAdminPendingStudents();
             loadAdminTeachersList();
         }
     }
 
+    function switchAdminTab(tab, btn) {
+        document.querySelectorAll('#admin-panel-content .tab-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        ['students', 'wallets', 'teachers', 'announcements'].forEach(t => {
+            document.getElementById('admin-tab-' + t).classList.toggle('hidden', t !== tab);
+        });
+    }
+
+    /* =============== الإدارة =============== */
     function verifyAdminAccess() {
         const pass = document.getElementById('admin-pass-input').value.trim();
+        // ملاحظة أمنية: يُفضل نقل كلمة السر إلى Firebase واستخدام hash
         if (pass === 'Mohamed opo9067rtypro hkjlpo') {
             document.getElementById('admin-auth-box').classList.add('hidden');
             document.getElementById('admin-panel-content').classList.remove('hidden');
@@ -574,7 +942,7 @@
                 let st = data[phone];
                 html += `
                     <div style="background: #05080f; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-color);">
-                        <b>الاسم:</b> ${st.name} | <b>الهاتف:</b> ${st.phone} | <b>ولي الأمر:</b> ${st.parentPhone}<br>
+                        <b>الاسم:</b> ${escapeHtml(st.name)} | <b>الهاتف:</b> ${phone} | <b>ولي الأمر:</b> ${escapeHtml(st.parentPhone)}<br>
                         <div style="margin: 10px 0;"><img src="${st.fileData}" style="max-width:180px; max-height:110px; border-radius:8px; border:1px solid var(--border-color);" alt="المستند"></div>
                         <button class="btn btn-success" style="padding: 6px 15px; font-size: 13px; display:inline-block; width:auto;" onclick="approveStudent('${phone}')">موافقة واعتماد ✅</button>
                         <button class="btn btn-danger" style="padding: 6px 15px; font-size: 13px; display:inline-block; width:auto; margin-right:8px;" onclick="rejectStudent('${phone}')">رفض ❌</button>
@@ -591,13 +959,12 @@
             const container = document.getElementById('admin-teachers-management-list');
             let html = '';
             let hasT = false;
-
             Object.keys(teachers).forEach(tId => {
                 let t = teachers[tId];
                 hasT = true;
                 html += `
-                    <div style="background: #05080f; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);">
-                        <div><b>${t.name}</b> (${t.subject}) - الكود: <code>${tId}</code></div>
+                    <div style="background: #05080f; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); flex-wrap:wrap; gap:8px;">
+                        <div><b>${escapeHtml(t.name)}</b> (${escapeHtml(t.subject)}) - الكود: <code>${tId}</code></div>
                         <button class="btn btn-danger" style="width: auto; padding: 5px 12px; margin-top:0;" onclick="adminDeleteTeacher('${tId}')">إزالة 🗑️</button>
                     </div>
                 `;
@@ -622,17 +989,14 @@
             alert('أدخل رقم هاتف صحيح وعدد نقاط صالح للشحن!');
             return;
         }
-
         db.ref('authorized_students/' + phone).once('value', (snap) => {
-            if (!snap.exists()) {
-                alert('❌ هذا الطالب غير مسجل أو غير معتمد!');
-                return;
-            }
+            if (!snap.exists()) { alert('❌ هذا الطالب غير مسجل أو غير معتمد!'); return; }
             db.ref('wallets/' + phone).once('value', (wSnap) => {
                 let currentWallet = wSnap.val() || { points: 0 };
                 let newBalance = currentWallet.points + pointsToAdd;
                 db.ref('wallets/' + phone).set({ points: newBalance }).then(() => {
-                    showLiveNotification(`✅ تمت إضافة ${pointsToAdd} نقطة لرصيد الطالب بنجاح!`);
+                    showLiveNotification(`✅ تمت إضافة ${pointsToAdd} نقطة لرصيد الطالب!`);
+                    pushNotification(phone, `تم شحن محفظتك بـ ${pointsToAdd} نقطة 💰`, 'wallet');
                     document.getElementById('admin-wallet-phone').value = '';
                     document.getElementById('admin-wallet-points').value = '';
                 });
@@ -640,6 +1004,7 @@
         });
     }
 
+    /* =============== تسجيل الطلاب =============== */
     async function submitStudentRegistration() {
         const name = document.getElementById('reg-name').value.trim();
         const phone = document.getElementById('reg-phone').value.trim();
@@ -651,15 +1016,16 @@
             alert('برجاء استيفاء جميع البيانات ورفع صورة الهوية!');
             return;
         }
-
+        if (!/^01[0-9]{9}$/.test(phone)) {
+            alert('رقم الهاتف يجب أن يبدأ بـ 01 ويتكون من 11 رقم!');
+            return;
+        }
         try {
             toggleLoading(true, 'جاري رفع صورة الهوية وسجل الطالب...');
             const fileUrl = await uploadFileToStorage(fileInput.files[0], 'student_ids');
-            
             await db.ref('pending_students/' + phone).set({
                 name, phone, parentPhone, password, fileData: fileUrl, timestamp: Date.now()
             });
-
             toggleLoading(false);
             showLiveNotification('✅ تم إرسال طلبك للإدارة العامة بنجاح!');
             switchLoginMode('student');
@@ -696,19 +1062,23 @@
         if (!name || !code || !password || !subject) { alert('أدخل كافة بيانات المعلم بدقة!'); return; }
         db.ref('teachers/' + code).set({ name, subject, code, password, role: 'teacher' }).then(() => {
             showLiveNotification('✅ تمت إضافة المعلم الجديد بنجاح!');
+            document.getElementById('new-t-name').value = '';
+            document.getElementById('new-t-subject').value = '';
+            document.getElementById('new-t-code').value = '';
+            document.getElementById('new-t-pass').value = '';
         });
     }
 
+    /* =============== دخول =============== */
     function handleStudentLogin() {
         const phone = document.getElementById('st-login-phone').value.trim();
         const password = document.getElementById('st-login-pass').value.trim();
         if (!phone || !password) { alert('أدخل رقم الهاتف والرقم السري!'); return; }
-
         db.ref('authorized_students/' + phone).once('value', (snap) => {
             const student = snap.val();
             if (student) {
                 if (student.password === password) {
-                    currentUser = student;
+                    currentUser = { ...student, role: 'student' };
                     localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
                     enterStudentDashboard();
                 } else {
@@ -724,15 +1094,16 @@
         const code = document.getElementById('teacher-login-id').value.trim();
         const pass = document.getElementById('teacher-login-pass').value.trim();
         if (!code || !pass) { alert('أدخل كود المعلم والرقم السري!'); return; }
-
         db.ref('teachers/' + code).once('value', (snapshot) => {
             const t = snapshot.val();
             if (t && t.password === pass) {
-                currentUser = { ...t, id: code };
+                currentUser = { ...t, id: code, role: 'teacher' };
                 localStorage.setItem('smart_platform_pro_user', JSON.stringify(currentUser));
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('teacher-dashboard').classList.remove('hidden');
+                document.getElementById('chat-fab').classList.remove('hidden');
                 loadTeacherDashboardData();
+                listenToMyNotifications(currentUser.id);
             } else {
                 alert('❌ بيانات دخول المعلم غير صحيحة!');
             }
@@ -740,20 +1111,26 @@
     }
 
     function logoutSession() {
+        clearAllListeners();
         localStorage.removeItem('smart_platform_pro_user');
         location.reload();
     }
 
+    function clearAllListeners() {
+        try { db.ref().off(); } catch(e) {}
+        if (chatListener) chatListener.off();
+        if (notificationListener) notificationListener.off();
+        clearInterval(timerInterval);
+    }
+
+    /* =============== بناء الكورسات =============== */
     function addCourseVideoField() {
         const container = document.getElementById('course-videos-container');
         const div = document.createElement('div');
         div.className = 'form-group';
-        div.style.background = '#05080f';
-        div.style.padding = '14px';
-        div.style.borderRadius = '10px';
-        div.style.border = '1px solid var(--border-color)';
+        div.style.cssText = 'background:#05080f;padding:14px;border-radius:10px;border:1px solid var(--border-color);';
         div.innerHTML = `
-            <label>عنوان الفيديو:</label><input type="text" class="c-video-title" placeholder="مثال: الدرس الأول - شرح الباب">
+            <label>عنوان الفيديو:</label><input type="text" class="c-video-title" placeholder="مثال: الدرس الأول">
             <label style="margin-top:8px;">رابط يوتيوب (غير مدرج):</label><input type="text" class="c-video-url" placeholder="الصق الرابط هنا...">
         `;
         container.appendChild(div);
@@ -763,12 +1140,9 @@
         const container = document.getElementById('course-images-container');
         const div = document.createElement('div');
         div.className = 'form-group';
-        div.style.background = '#05080f';
-        div.style.padding = '14px';
-        div.style.borderRadius = '10px';
-        div.style.border = '1px solid var(--border-color)';
+        div.style.cssText = 'background:#05080f;padding:14px;border-radius:10px;border:1px solid var(--border-color);';
         div.innerHTML = `
-            <label>عنوان الصورة أو المخطط:</label><input type="text" class="c-img-title" placeholder="مثال: خريطة ذهنية للدرس">
+            <label>عنوان الصورة أو المخطط:</label><input type="text" class="c-img-title" placeholder="خريطة ذهنية للدرس">
             <label style="margin-top:8px;">اختر الصورة:</label><input type="file" class="c-img-file" accept="image/*">
         `;
         container.appendChild(div);
@@ -780,12 +1154,11 @@
         const qCard = document.createElement('div');
         qCard.className = 'question-card-builder';
         qCard.dataset.type = type;
-
         if (type === 'mcq') {
             qCard.innerHTML = `
                 <h4 style="color: var(--primary); margin-bottom: 10px;">سؤال اختياري (${qCount})</h4>
                 <div class="form-group"><label>نص السؤال:</label><textarea class="m-q-text" rows="2" placeholder="اكتب السؤال هنا..."></textarea></div>
-                <div class="form-group"><label>صورة توضيحية للسؤال (اختياري):</label><input type="file" class="m-q-img" accept="image/*"></div>
+                <div class="form-group"><label>صورة توضيحية (اختياري):</label><input type="file" class="m-q-img" accept="image/*"></div>
                 <div class="form-group"><input type="text" class="m-opt-0" placeholder="الخيار الأول"></div>
                 <div class="form-group"><input type="text" class="m-opt-1" placeholder="الخيار الثاني"></div>
                 <div class="form-group"><input type="text" class="m-opt-2" placeholder="الخيار الثالث"></div>
@@ -795,7 +1168,7 @@
         } else {
             qCard.innerHTML = `
                 <h4 style="color: var(--success); margin-bottom: 10px;">سؤال مقالي (${qCount})</h4>
-                <div class="form-group"><label>نص السؤال المقالي:</label><textarea class="m-q-text" rows="2" placeholder="اكتب السؤال المقالي..."></textarea></div>
+                <div class="form-group"><label>نص السؤال المقالي:</label><textarea class="m-q-text" rows="2" placeholder="اكتب السؤال..."></textarea></div>
                 <div class="form-group"><label>صورة توضيحية (اختياري):</label><input type="file" class="m-q-img" accept="image/*"></div>
             `;
         }
@@ -807,26 +1180,19 @@
         const price = parseInt(document.getElementById('course-price').value);
         const desc = document.getElementById('course-desc').value.trim();
         
-        if (!title || isNaN(price)) {
-            alert('برجاء إدخال عنوان الكورس وسعره بالنقاط!');
-            return;
-        }
+        if (!title || isNaN(price)) { alert('برجاء إدخال عنوان الكورس وسعره!'); return; }
 
         try {
             toggleLoading(true, 'جاري رفع صور الكورس وامتحان التقييم للسحاب...');
-
             let videos = [];
             document.querySelectorAll('#course-videos-container > div').forEach(div => {
                 let vTitle = div.querySelector('.c-video-title').value.trim();
                 let vUrl = div.querySelector('.c-video-url').value.trim();
-                if (vTitle && vUrl) {
-                    videos.push({ title: vTitle, url: autoFormatYouTubeUrl(vUrl) });
-                }
+                if (vTitle && vUrl) videos.push({ title: vTitle, url: autoFormatYouTubeUrl(vUrl) });
             });
 
-            let imageDivs = document.querySelectorAll('#course-images-container > div');
             let images = [];
-            for (let div of imageDivs) {
+            for (let div of document.querySelectorAll('#course-images-container > div')) {
                 let imgTitle = div.querySelector('.c-img-title').value.trim();
                 let fileInput = div.querySelector('.c-img-file');
                 if (fileInput.files.length > 0) {
@@ -841,17 +1207,14 @@
             let questions = [];
             let mcqCount = 0;
 
-            for (let i = 0; i < qCards.length; i++) {
-                let card = qCards[i];
+            for (let card of qCards) {
                 let type = card.dataset.type;
                 let qText = card.querySelector('.m-q-text').value.trim();
                 let imgInput = card.querySelector('.m-q-img');
                 if (type === 'mcq') mcqCount++;
 
                 let qImgUrl = null;
-                if (imgInput.files.length > 0) {
-                    qImgUrl = await uploadFileToStorage(imgInput.files[0], 'exam_questions');
-                }
+                if (imgInput.files.length > 0) qImgUrl = await uploadFileToStorage(imgInput.files[0], 'exam_questions');
 
                 let qData = { type, text: qText, imgData: qImgUrl };
                 if (type === 'mcq') {
@@ -871,7 +1234,7 @@
                 title: examTitle || ('امتحان كورس: ' + title),
                 questions,
                 duration,
-                maxTotal: (mcqCount * 10) + ((qCards.length - mcqCount) * 10)
+                maxTotal: qCards.length * 10
             } : null;
 
             const courseId = 'course_' + Date.now();
@@ -881,19 +1244,16 @@
 
             toggleLoading(false);
             showLiveNotification('🚀 تم نشر الكورس الشامل بنجاح!');
-            document.getElementById('course-title').value = '';
-            document.getElementById('course-price').value = '';
-            document.getElementById('course-desc').value = '';
-            document.getElementById('course-videos-container').innerHTML = '';
-            document.getElementById('course-images-container').innerHTML = '';
-            document.getElementById('course-exam-title').value = '';
-            document.getElementById('course-exam-questions-container').innerHTML = '';
+            // تفريغ النموذج
+            ['course-title','course-price','course-desc','course-exam-title'].forEach(id => document.getElementById(id).value = '');
+            ['course-videos-container','course-images-container','course-exam-questions-container'].forEach(id => document.getElementById(id).innerHTML = '');
         } catch (error) {
             toggleLoading(false);
             alert('حدث خطأ أثناء النشر: ' + error.message);
         }
     }
 
+    /* =============== لوحة المعلم =============== */
     function loadTeacherDashboardData() {
         document.getElementById('teacher-dash-title').innerText = `لوحة المعلم: ${currentUser.name}`;
         document.getElementById('teacher-welcome-msg').innerText = `التخصص: ${currentUser.subject} | الكود: ${currentUser.id}`;
@@ -908,14 +1268,13 @@
             const container = document.getElementById('teacher-manage-courses-list');
             let html = '';
             let hasC = false;
-
             Object.keys(courses).forEach(cId => {
                 let c = courses[cId];
                 hasC = true;
                 let isLocked = c.locked === true;
                 html += `
                     <div style="background: #05080f; padding: 14px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px;">
-                        <div><b>${c.title}</b> (السعر: ${c.price} نقطة) | الحالة: <span style="color: ${isLocked ? 'var(--danger)' : 'var(--success)'};">${isLocked ? 'مقفل 🔒' : 'متاح ✅'}</span></div>
+                        <div><b>${escapeHtml(c.title)}</b> (${c.price} نقطة) | ${isLocked ? '<span style="color:var(--danger);">مقفل 🔒</span>' : '<span style="color:var(--success);">متاح ✅</span>'}</div>
                         <div style="display: flex; gap: 6px;">
                             <button class="btn ${isLocked ? 'btn-success' : 'btn-warning'}" style="width: auto; padding: 6px 14px; margin-top:0;" onclick="toggleCourseLock('${currentUser.id}', '${cId}', ${isLocked})">${isLocked ? 'فتح 🔓' : 'قفل 🔒'}</button>
                             <button class="btn btn-danger" style="width: auto; padding: 6px 14px; margin-top:0;" onclick="deleteTeacherCourse('${currentUser.id}', '${cId}')">حذف 🗑️</button>
@@ -929,18 +1288,15 @@
         db.ref(`video_analytics/${currentUser.id}`).on('value', (snap) => {
             const analytics = snap.val() || {};
             const container = document.getElementById('teacher-video-analytics-list');
-            let html = `<table><tr><th>هاتف الطالب</th><th>عنوان الفيديو</th><th>حالة المشاهدة</th></tr>`;
+            let html = '<table><tr><th>هاتف الطالب</th><th>عنوان الفيديو</th><th>الحالة</th></tr>';
             let hasData = false;
-
             Object.keys(analytics).forEach(stPhone => {
-                let studentVideos = analytics[stPhone];
-                Object.keys(studentVideos).forEach(vKey => {
-                    let vData = studentVideos[vKey];
+                Object.values(analytics[stPhone]).forEach(vData => {
                     hasData = true;
-                    html += `<tr><td>${stPhone}</td><td>${vData.videoTitle}</td><td><span class="badge badge-success">تم الفتح (${vData.percent || '100%'})</span></td></tr>`;
+                    html += `<tr><td>${stPhone}</td><td>${escapeHtml(vData.videoTitle)}</td><td><span class="badge badge-success">تم الفتح (${vData.percent || '100%'})</span></td></tr>`;
                 });
             });
-            html += `</table>`;
+            html += '</table>';
             container.innerHTML = hasData ? html : '<p style="color: var(--text-muted);">لا توجد بيانات مشاهدة حتى الآن.</p>';
         });
 
@@ -949,14 +1305,13 @@
             const container = document.getElementById('teacher-join-requests-list');
             let html = '';
             let hasReq = false;
-
             Object.keys(requests).forEach(stPhone => {
                 let req = requests[stPhone];
                 if (req.status === 'pending') {
                     hasReq = true;
                     html += `
-                        <div style="background: #05080f; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);">
-                            <div><b>${req.studentName}</b> (هاتف: ${stPhone})</div>
+                        <div style="background: #05080f; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); flex-wrap:wrap; gap:8px;">
+                            <div><b>${escapeHtml(req.studentName)}</b> (${stPhone})</div>
                             <div>
                                 <button class="btn btn-success" style="padding: 6px 14px; font-size: 13px; display:inline-block; width:auto;" onclick="acceptStudentJoin('${currentUser.id}', '${stPhone}')">قبول ✅</button>
                                 <button class="btn btn-danger" style="padding: 6px 14px; font-size: 13px; display:inline-block; width:auto; margin-right:6px;" onclick="rejectStudentJoin('${currentUser.id}', '${stPhone}')">رفض ❌</button>
@@ -971,16 +1326,15 @@
         db.ref('teacher_students/' + currentUser.id).on('value', (snap) => {
             const students = snap.val() || {};
             const container = document.getElementById('teacher-approved-students-list');
-            let html = '<table><tr><th>اسم الطالب</th><th>هاتف الطالب</th><th>هاتف ولي الأمر</th></tr>';
+            let html = '<table><tr><th>اسم الطالب</th><th>هاتف الطالب</th><th>ولي الأمر</th></tr>';
             let hasSt = false;
-
             Object.keys(students).forEach(stPhone => {
                 let st = students[stPhone];
                 hasSt = true;
-                html += `<tr><td>${st.name}</td><td>${st.phone}</td><td>${st.parentPhone}</td></tr>`;
+                html += `<tr><td>${escapeHtml(st.name)}</td><td>${st.phone}</td><td>${escapeHtml(st.parentPhone)}</td></tr>`;
             });
             html += '</table>';
-            container.innerHTML = hasSt ? html : '<p style="color: var(--text-muted);">لا توجد طلاب مقبولة معك.</p>';
+            container.innerHTML = hasSt ? html : '<p style="color: var(--text-muted);">لا توجد طلاب مقبولة بعد.</p>';
         });
 
         db.ref('exam_results').on('value', (snap) => {
@@ -988,24 +1342,22 @@
             const essayContainer = document.getElementById('teacher-essay-grading-list');
             let essayHtml = '';
             let hasEssay = false;
-
             Object.keys(allResults).forEach(stPhone => {
-                let studentExams = allResults[stPhone];
-                Object.keys(studentExams).forEach(examId => {
-                    let res = studentExams[examId];
+                Object.keys(allResults[stPhone]).forEach(examId => {
+                    let res = allResults[stPhone][examId];
                     if (res.teacherId === currentUser.id && res.answers) {
                         Object.keys(res.answers).forEach(qIdx => {
                             let ans = res.answers[qIdx];
-                            if (ans.type === 'essay' && (!ans.graded || ans.graded === false)) {
+                            if (ans.type === 'essay' && !ans.graded) {
                                 hasEssay = true;
                                 essayHtml += `
                                     <div style="background: #05080f; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-color);">
-                                        <b>هاتف الطالب:</b> ${stPhone} | <b>الامتحان:</b> ${res.examTitle}<br>
-                                        <p style="margin: 8px 0; color: var(--primary);"><b>إجابة الطالب:</b> ${ans.text || 'بدون نص'}</p>
-                                        ${ans.fileData ? `<div style="margin: 10px 0;"><img src="${ans.fileData}" style="max-width:200px; max-height:130px; border-radius:8px; border:1px solid var(--border-color);" alt="إجابة الطالب"></div>` : ''}
+                                        <b>الطالب:</b> ${stPhone} | <b>الامتحان:</b> ${escapeHtml(res.examTitle)}<br>
+                                        <p style="margin: 8px 0; color: var(--primary);"><b>الإجابة:</b> ${escapeHtml(ans.text) || 'بدون نص'}</p>
+                                        ${ans.fileData ? `<div style="margin: 10px 0;"><img src="${ans.fileData}" style="max-width:200px; max-height:130px; border-radius:8px;" alt="إجابة"></div>` : ''}
                                         <div class="flex-row" style="align-items: center; margin-top: 10px;">
                                             <input type="number" id="grade_input_${stPhone}_${examId}_${qIdx}" placeholder="الدرجة" style="max-width: 150px;" min="0">
-                                            <button class="btn btn-success" style="padding: 10px 18px; font-size: 14px; width: auto; margin-top:0;" onclick="submitEssayGrade('${stPhone}', '${examId}', '${qIdx}')">اعتماد وإرسال للطالب 🎯</button>
+                                            <button class="btn btn-success" style="padding: 10px 18px; font-size: 14px; width: auto; margin-top:0;" onclick="submitEssayGrade('${stPhone}', '${examId}', '${qIdx}')">اعتماد 🎯</button>
                                         </div>
                                     </div>
                                 `;
@@ -1020,7 +1372,7 @@
 
     function toggleCourseLock(teacherId, courseId, currentLockStatus) {
         db.ref(`courses/${teacherId}/${courseId}/locked`).set(!currentLockStatus).then(() => {
-            showLiveNotification(!currentLockStatus ? '🔒 تم قفل الكورس.' : '🔓 تم فتح الكورس وإتاحته.');
+            showLiveNotification(!currentLockStatus ? '🔒 تم قفل الكورس.' : '🔓 تم فتح الكورس.');
         });
     }
 
@@ -1034,21 +1386,24 @@
 
     function submitEssayGrade(stPhone, examId, qIdx) {
         const inputVal = document.getElementById(`grade_input_${stPhone}_${examId}_${qIdx}`).value;
-        if (inputVal === '') { alert('أدخل درجة السؤال المقالي!'); return; }
+        if (inputVal === '') { alert('أدخل درجة السؤال!'); return; }
         const essayScore = parseFloat(inputVal);
-
         db.ref(`exam_results/${stPhone}/${examId}`).once('value', (snap) => {
             let res = snap.val();
             if (res) {
-                res.essayScore = essayScore;
-                res.totalScore = res.mcqScore + essayScore;
+                res.essayScore = (res.essayScore || 0) + essayScore;
+                res.totalScore = (res.mcqScore || 0) + res.essayScore;
                 if (!res.answers[qIdx]) res.answers[qIdx] = {};
                 res.answers[qIdx].graded = true;
                 res.answers[qIdx].givenScore = essayScore;
-                res.status = 'مصحح بالكامل ✅';
+
+                // فحص إذا كان كل المقالي مصحح
+                const allGraded = Object.values(res.answers).every(a => a.type !== 'essay' || a.graded);
+                res.status = allGraded ? 'مصحح بالكامل ✅' : 'بانتظار تصحيح المقالي ⏳';
 
                 db.ref(`exam_results/${stPhone}/${examId}`).set(res).then(() => {
-                    showLiveNotification('✅ تم إرسال الدرجة للطالب بنجاح!');
+                    showLiveNotification('✅ تم إرسال الدرجة للطالب!');
+                    pushNotification(stPhone, `تم تصحيح امتحانك "${res.examTitle}" - مجموعك: ${res.totalScore}`, 'grade');
                 });
             }
         });
@@ -1063,9 +1418,9 @@
                     phone: studentPhone,
                     parentPhone: req.parentPhone
                 }).then(() => {
-                    db.ref(`join_requests/${teacherId}/${studentPhone}/status`).set('approved').then(() => {
-                        showLiveNotification('✅ تم قبول انضمام الطالب.');
-                    });
+                    db.ref(`join_requests/${teacherId}/${studentPhone}/status`).set('approved');
+                    pushNotification(studentPhone, `تم قبول انضمامك لمعلم جديد ✅`, 'join');
+                    showLiveNotification('✅ تم قبول انضمام الطالب.');
                 });
             }
         });
@@ -1077,15 +1432,17 @@
         });
     }
 
+    /* =============== لوحة الطالب =============== */
     function enterStudentDashboard() {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('student-dashboard').classList.remove('hidden');
+        document.getElementById('chat-fab').classList.remove('hidden');
         document.getElementById('welcome-name').innerText = currentUser.name;
 
         document.getElementById('student-profile-info').innerHTML = `
-            <b>الاسم:</b> ${currentUser.name}<br>
+            <b>الاسم:</b> ${escapeHtml(currentUser.name)}<br>
             <b>رقم الهاتف:</b> ${currentUser.phone}<br>
-            <b>ولي الأمر:</b> ${currentUser.parentPhone}
+            <b>ولي الأمر:</b> ${escapeHtml(currentUser.parentPhone)}
         `;
 
         db.ref('wallets/' + currentUser.phone).on('value', (snap) => {
@@ -1098,13 +1455,15 @@
             let html = '<option value="">-- اختر معلماً --</option>';
             Object.keys(teachers).forEach(tId => {
                 let t = teachers[tId];
-                html += `<option value="${tId}">${t.name} (${t.subject})</option>`;
+                html += `<option value="${tId}">${escapeHtml(t.name)} (${escapeHtml(t.subject)})</option>`;
             });
             document.getElementById('student-select-teacher').innerHTML = html;
         });
 
         loadStudentForumPosts();
         loadStudentExamHistory();
+        loadAnnouncements();
+        listenToMyNotifications(currentUser.phone);
     }
 
     function checkStudentJoinStatus(teacherId) {
@@ -1118,23 +1477,23 @@
 
         db.ref(`teacher_students/${teacherId}/${currentUser.phone}`).once('value', (snap) => {
             if (snap.exists()) {
-                actionBox.innerHTML = `<span class="badge badge-success" style="font-size: 14px; padding: 10px 20px;">أنت منضم بالفعل لهذا المعلم ✅</span>`;
+                actionBox.innerHTML = `<span class="badge badge-success" style="font-size: 14px; padding: 10px 20px;">أنت منضم بالفعل ✅</span>`;
                 coursesSec.classList.remove('hidden');
                 loadStudentCourses(teacherId);
             } else {
                 db.ref(`join_requests/${teacherId}/${currentUser.phone}`).once('value', (rSnap) => {
                     let req = rSnap.val();
                     if (req && req.status === 'pending') {
-                        actionBox.innerHTML = `<span class="badge badge-warning" style="font-size: 14px; padding: 10px 20px;">طلب الانضمام قيد بررسی الإدارة والمعلم ⏳</span>`;
+                        actionBox.innerHTML = `<span class="badge badge-warning" style="font-size: 14px; padding: 10px 20px;">قيد المراجعة ⏳</span>`;
                         coursesSec.classList.add('hidden');
                     } else if (req && req.status === 'rejected') {
                         actionBox.innerHTML = `
-                            <span class="badge badge-danger" style="font-size: 14px; padding: 10px 20px; display:inline-block; margin-bottom:12px;">تم رفض طلب الانضمام السابق ❌</span><br>
-                            <button class="btn btn-warning" style="max-width: 250px;" onclick="requestJoinTeacher('${teacherId}')">إعادة إرسال طلب الانضمام 🚀</button>
+                            <span class="badge badge-danger" style="font-size: 14px; padding: 10px 20px; display:inline-block; margin-bottom:12px;">تم رفض الطلب ❌</span><br>
+                            <button class="btn btn-warning" style="max-width: 250px;" onclick="requestJoinTeacher('${teacherId}')">إعادة إرسال الطلب 🚀</button>
                         `;
                         coursesSec.classList.add('hidden');
                     } else {
-                        actionBox.innerHTML = `<button class="btn btn-success" style="max-width: 250px;" onclick="requestJoinTeacher('${teacherId}')">إرسال طلب انضمام للمعلم 🚀</button>`;
+                        actionBox.innerHTML = `<button class="btn btn-success" style="max-width: 250px;" onclick="requestJoinTeacher('${teacherId}')">إرسال طلب انضمام 🚀</button>`;
                         coursesSec.classList.add('hidden');
                     }
                 });
@@ -1149,7 +1508,8 @@
             status: 'pending',
             timestamp: Date.now()
         }).then(() => {
-            showLiveNotification('✅ تم إرسال طلب الانضمام بنجاح!');
+            showLiveNotification('✅ تم إرسال الطلب!');
+            pushNotification(teacherId, `طلب انضمام جديد من ${currentUser.name}`, 'join');
             checkStudentJoinStatus(teacherId);
         });
     }
@@ -1157,6 +1517,7 @@
     function loadStudentCourses(teacherId) {
         db.ref(`courses/${teacherId}`).on('value', (snap) => {
             const courses = snap.val() || {};
+            currentCoursesList = courses;
             const container = document.getElementById('student-courses-list-box');
             let html = '';
             let hasC = false;
@@ -1167,12 +1528,12 @@
                 hasC = true;
                 html += `
                     <div style="background: #05080f; padding: 20px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <div>
-                            <h4 style="color: var(--primary); margin-bottom: 6px;">${c.title}</h4>
-                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 8px;">${c.desc || ''}</p>
+                        <div style="flex: 1; min-width: 200px;">
+                            <h4 style="color: var(--primary); margin-bottom: 6px;">${escapeHtml(c.title)}</h4>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 8px;">${escapeHtml(c.desc) || ''}</p>
                             <span class="badge badge-warning">السعر: ${c.price} نقطة</span>
                         </div>
-                        <button class="btn btn-success" style="width: auto; padding: 10px 22px; margin-top:0;" onclick="openCourse('${teacherId}', '${cId}')">عرض محتوى الكورس 📖</button>
+                        <button class="btn btn-success" style="width: auto; padding: 10px 22px; margin-top:0;" onclick="openCourse('${teacherId}', '${cId}')">عرض 📖</button>
                     </div>
                 `;
             });
@@ -1184,7 +1545,6 @@
         db.ref(`courses/${teacherId}/${courseId}`).once('value', (snap) => {
             const c = snap.val();
             if (!c) return;
-
             db.ref(`purchased_courses/${currentUser.phone}/${courseId}`).once('value', (pSnap) => {
                 if (pSnap.exists() || c.price === 0) {
                     renderCourseModalContent(teacherId, courseId, c);
@@ -1192,22 +1552,21 @@
                     db.ref(`wallets/${currentUser.phone}`).once('value', (wSnap) => {
                         let w = wSnap.val() || { points: 0 };
                         if (w.points >= c.price) {
-                            if (confirm(`هل تريد شراء الكورس "${c.title}" مقابل خصم ${c.price} نقطة من محفظتك؟`)) {
+                            if (confirm(`هل تريد شراء الكورس "${c.title}" مقابل ${c.price} نقطة؟`)) {
                                 let newBalance = w.points - c.price;
                                 db.ref(`wallets/${currentUser.phone}`).set({ points: newBalance }).then(() => {
                                     db.ref(`purchased_courses/${currentUser.phone}/${courseId}`).set(true);
-                                    
                                     db.ref(`teacher_wallets/${teacherId}`).once('value', (twSnap) => {
                                         let tw = twSnap.val() || { points: 0 };
                                         db.ref(`teacher_wallets/${teacherId}`).set({ points: tw.points + c.price });
                                     });
-
-                                    showLiveNotification('🎉 تم شراء الكورس بنجاح!');
+                                    showLiveNotification('🎉 تم شراء الكورس!');
+                                    pushNotification(teacherId, `${currentUser.name} اشترى كورس "${c.title}"`, 'purchase');
                                     renderCourseModalContent(teacherId, courseId, c);
                                 });
                             }
                         } else {
-                            alert(`❌ رصيد محفظتك غير كافي (${w.points} نقطة). سعر الكورس ${c.price} نقطة. اطلب شحن رصيدك من الإدارة!`);
+                            alert(`❌ رصيدك غير كافي (${w.points} نقطة). السعر ${c.price}.`);
                         }
                     });
                 }
@@ -1216,49 +1575,73 @@
     }
 
     function renderCourseModalContent(teacherId, courseId, c) {
+        courseCache[courseId] = { teacherId, data: c };
         document.getElementById('modal-course-title').innerText = c.title;
-        let contentHtml = `<p style="color: var(--text-muted); margin-bottom: 20px;">${c.desc || ''}</p>`;
+        let contentHtml = `<p style="color: var(--text-muted); margin-bottom: 20px;">${escapeHtml(c.desc) || ''}</p>`;
 
-        contentHtml += `<h4 style="color: var(--accent); margin-bottom: 12px;">🎥 الفيديوهات التعليمية:</h4>`;
+        // تقييم
+        contentHtml += `<div style="text-align:center; margin-bottom:20px;">
+            <p style="color: var(--warning); font-weight:800;">⭐ قيّم هذا الكورس:</p>
+            ${renderStarRating(teacherId, courseId)}
+        </div>`;
+
+        contentHtml += `<h4 style="color: var(--accent); margin-bottom: 12px;">🎥 الفيديوهات:</h4>`;
         if (c.videos && c.videos.length > 0) {
             c.videos.forEach((v, idx) => {
                 contentHtml += `
-                    <div style="background: #080d1a; padding: 12px 18px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);">
-                        <span>🎬 ${v.title}</span>
-                        <button class="btn btn-primary" style="width: auto; padding: 6px 16px; margin-top:0;" onclick="watchVideo('${teacherId}', '${v.title}', '${v.url}')">مشاهدة الفيديو 👁️‍🗨️</button>
+                    <div style="background: #080d1a; padding: 12px 18px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); flex-wrap:wrap; gap:10px;">
+                        <span>🎬 ${escapeHtml(v.title)}</span>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn" style="width: auto; padding: 6px 16px; margin-top:0;" onclick="watchVideo('${teacherId}', '${escapeHtml(v.title).replace(/'/g, "\\'")}', '${v.url}')">مشاهدة 👁️</button>
+                            <button class="btn" style="width: auto; padding: 6px 16px; margin-top:0; background: var(--accent);" onclick="openChat('${teacherId}', 'المعلم')">💬 استفسار</button>
+                        </div>
                     </div>
                 `;
             });
         } else {
-            contentHtml += `<p style="color: var(--text-muted); margin-bottom: 15px;">لا توجد فيديوهات مرفقة.</p>`;
+            contentHtml += `<p style="color: var(--text-muted);">لا توجد فيديوهات.</p>`;
         }
 
-        contentHtml += `<h4 style="color: var(--success); margin: 20px 0 12px;">🖼️ الصور والمخططات التوضيحية:</h4>`;
+        contentHtml += `<h4 style="color: var(--success); margin: 20px 0 12px;">🖼️ الصور والمخططات:</h4>`;
         if (c.images && c.images.length > 0) {
             c.images.forEach(img => {
                 contentHtml += `
                     <div style="background: #080d1a; padding: 15px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border-color);">
-                        <b>${img.title}</b><br><br>
-                        <img src="${img.data}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color);" alt="مخطط">
+                        <b>${escapeHtml(img.title)}</b><br><br>
+                        <img src="${img.data}" style="max-width: 100%; border-radius: 8px;" alt="مخطط">
                     </div>
                 `;
             });
         } else {
-            contentHtml += `<p style="color: var(--text-muted); margin-bottom: 15px;">لا توجد صور مرفقة.</p>`;
+            contentHtml += `<p style="color: var(--text-muted);">لا توجد صور.</p>`;
         }
 
         if (c.examData) {
             contentHtml += `
                 <hr style="border-color: var(--border-color); margin: 25px 0;">
                 <div style="text-align: center;">
-                    <h4 style="color: var(--danger); margin-bottom: 12px;">📝 امتحان الكورس التقييمي</h4>
-                    <button class="btn btn-success" style="max-width: 320px; margin: 0 auto; padding: 14px;" onclick='startExamSession(${JSON.stringify(c.examData)}, "${teacherId}")'>ابدأ الامتحان الآن 🚀</button>
+                    <h4 style="color: var(--danger); margin-bottom: 12px;">📝 امتحان الكورس</h4>
+                    <button class="btn btn-success" style="max-width: 320px; margin: 0 auto; padding: 14px;" onclick="startExamSessionFromCache('${courseId}', '${teacherId}')">ابدأ الامتحان 🚀</button>
                 </div>
             `;
         }
 
+        contentHtml += `
+            <hr style="border-color: var(--border-color); margin: 25px 0;">
+            <div style="text-align:center;">
+                <button class="btn btn-warning" style="max-width: 320px; margin: 0 auto;" onclick="showCertificate('${escapeHtml(c.title).replace(/'/g, "\\'")}')">🏆 استلم شهادتك</button>
+            </div>
+        `;
+
         document.getElementById('modal-course-content').innerHTML = contentHtml;
         document.getElementById('course-view-modal').classList.remove('hidden');
+    }
+
+    function startExamSessionFromCache(courseId, teacherId) {
+        const cached = courseCache[courseId];
+        if (cached && cached.data.examData) {
+            startExamSession(cached.data.examData, teacherId);
+        }
     }
 
     function closeCourseModal() {
@@ -1269,15 +1652,12 @@
         db.ref(`video_analytics/${teacherId}/${currentUser.phone}/${Date.now()}`).set({
             videoTitle, timestamp: Date.now(), percent: '100%'
         });
-
         document.getElementById('modal-video-title').innerText = videoTitle;
-        
-        // غلاف آمن لإلغاء أي إمكانية لنسخ الرابط أو الخروج من المنصة
         document.getElementById('modal-video-container').innerHTML = `
             <div class="video-wrapper">
                 <div class="video-shield"></div>
                 <div class="video-shield-bottom"></div>
-                <iframe src="${videoUrl}" style="width:100%; height:100%; border:none;" sandbox="allow-scripts allow-same-origin allow-presentation" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe src="${videoUrl}" style="width:100%; height:100%; border:none;" sandbox="allow-scripts allow-same-origin allow-presentation" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         `;
         document.getElementById('video-modal').classList.remove('hidden');
@@ -1288,6 +1668,7 @@
         document.getElementById('video-modal').classList.add('hidden');
     }
 
+    /* =============== الامتحانات =============== */
     function startExamSession(examData, teacherId) {
         closeCourseModal();
         currentExamData = examData;
@@ -1299,13 +1680,13 @@
         document.getElementById('student-dashboard').classList.add('hidden');
         document.getElementById('exam-taking-screen').classList.remove('hidden');
         document.getElementById('exam-view-title').innerText = examData.title;
-
         renderExamQuestion();
         startTimer();
     }
 
     function startTimer() {
         clearInterval(timerInterval);
+        updateTimerDisplay();
         timerInterval = setInterval(() => {
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
@@ -1314,10 +1695,14 @@
                 return;
             }
             timeLeft--;
-            let mins = Math.floor(timeLeft / 60);
-            let secs = timeLeft % 60;
-            document.getElementById('timer-display').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            updateTimerDisplay();
         }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        document.getElementById('timer-display').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
     function renderExamQuestion() {
@@ -1326,11 +1711,7 @@
         document.getElementById('exam-view-text').innerText = q.text;
 
         const imgBox = document.getElementById('exam-question-image-box');
-        if (q.imgData) {
-            imgBox.innerHTML = `<img src="${q.imgData}" style="max-width:320px; max-height:200px; border-radius:10px; border:1px solid var(--border-color);" alt="سؤال">`;
-        } else {
-            imgBox.innerHTML = '';
-        }
+        imgBox.innerHTML = q.imgData ? `<img src="${q.imgData}" style="max-width:320px; max-height:200px; border-radius:10px;" alt="سؤال">` : '';
 
         const contentBox = document.getElementById('exam-question-content-box');
         if (q.type === 'mcq') {
@@ -1339,7 +1720,7 @@
                 let isChecked = studentAnswers[currentQIndex] === idx ? 'checked' : '';
                 html += `
                     <label style="display: block; background: #080d1a; padding: 14px 18px; border-radius: 12px; margin-bottom: 12px; border: 1.5px solid var(--border-color); cursor: pointer; font-weight: 700;">
-                        <input type="radio" name="exam_opt" value="${idx}" ${isChecked} onchange="studentAnswers[${currentQIndex}] = ${idx}" style="margin-left: 10px;"> ${opt}
+                        <input type="radio" name="exam_opt" value="${idx}" ${isChecked} onchange="studentAnswers[${currentQIndex}] = ${idx}" style="margin-left: 10px;"> ${escapeHtml(opt)}
                     </label>
                 `;
             });
@@ -1348,9 +1729,9 @@
             let savedText = studentAnswers[currentQIndex]?.text || '';
             let savedFile = studentAnswers[currentQIndex]?.fileData || '';
             contentBox.innerHTML = `
-                <div class="form-group"><label>إجابتك المقالية:</label><textarea id="essay_ans_text" rows="4" placeholder="اكتب إجابتك هنا..." oninput="updateEssayText(this.value)">${savedText}</textarea></div>
+                <div class="form-group"><label>إجابتك المقالية:</label><textarea id="essay_ans_text" rows="4" placeholder="اكتب إجابتك..." oninput="updateEssayText(this.value)">${escapeHtml(savedText)}</textarea></div>
                 <div class="form-group"><label>أو ارفع صورة الإجابة:</label><input type="file" accept="image/*" onchange="updateEssayFile(this)"></div>
-                ${savedFile ? `<div style="margin-top:10px;"><img src="${savedFile}" style="max-width:180px; max-height:110px; border-radius:8px;" alt="صورة الإجابة"></div>` : ''}
+                ${savedFile ? `<div style="margin-top:10px;"><img src="${savedFile}" style="max-width:180px; max-height:110px; border-radius:8px;" alt="إجابة"></div>` : ''}
             `;
         }
     }
@@ -1358,17 +1739,18 @@
     function updateEssayText(val) {
         if (!studentAnswers[currentQIndex]) studentAnswers[currentQIndex] = { type: 'essay' };
         studentAnswers[currentQIndex].text = val;
+        studentAnswers[currentQIndex].type = 'essay';
     }
 
     async function updateEssayFile(input) {
         if (input.files.length > 0) {
             try {
-                toggleLoading(true, 'جاري رفع صورة الإجابة المقالية...');
-                let fileUrl = await uploadFileToStorage(input.files.length > 0 ? input.files[0] : null, 'student_essays');
+                toggleLoading(true, 'جاري رفع صورة الإجابة...');
+                let fileUrl = await uploadFileToStorage(input.files[0], 'student_essays');
                 toggleLoading(false);
-
                 if (!studentAnswers[currentQIndex]) studentAnswers[currentQIndex] = { type: 'essay' };
                 studentAnswers[currentQIndex].fileData = fileUrl;
+                studentAnswers[currentQIndex].type = 'essay';
                 renderExamQuestion();
             } catch (error) {
                 toggleLoading(false);
@@ -1392,53 +1774,51 @@
     }
 
     function confirmAndSubmitExam() {
-        if (confirm('هل أنت متأكد من تسليم الامتحان نهائياً؟')) {
-            clearInterval(timerInterval);
-            let mcqScore = 0;
-            let essayCount = 0;
-            let formattedAnswers = {};
+        if (!confirm('هل أنت متأكد من تسليم الامتحان؟')) return;
+        clearInterval(timerInterval);
+        let mcqScore = 0;
+        let essayCount = 0;
+        let formattedAnswers = {};
 
-            currentExamData.questions.forEach((q, idx) => {
-                let ans = studentAnswers[idx];
-                if (q.type === 'mcq') {
-                    if (ans !== undefined && ans === q.correct) {
-                        mcqScore += 10;
-                    }
-                    formattedAnswers[idx] = { type: 'mcq', studentChoice: ans, correctChoice: q.correct };
-                } else {
-                    essayCount++;
-                    formattedAnswers[idx] = {
-                        type: 'essay',
-                        text: ans?.text || '',
-                        fileData: ans?.fileData || '',
-                        graded: false,
-                        givenScore: 0
-                    };
-                }
-            });
+        currentExamData.questions.forEach((q, idx) => {
+            let ans = studentAnswers[idx];
+            if (q.type === 'mcq') {
+                if (ans !== undefined && ans === q.correct) mcqScore += 10;
+                formattedAnswers[idx] = { type: 'mcq', studentChoice: ans, correctChoice: q.correct };
+            } else {
+                essayCount++;
+                formattedAnswers[idx] = {
+                    type: 'essay',
+                    text: ans?.text || '',
+                    fileData: ans?.fileData || '',
+                    graded: false,
+                    givenScore: 0
+                };
+            }
+        });
 
-            let totalMax = currentExamData.questions.length * 10;
-            let finalResult = {
-                examTitle: currentExamData.title,
-                teacherId: activeExamTeacherId,
-                mcqScore,
-                essayScore: 0,
-                totalScore: mcqScore,
-                maxTotal: totalMax,
-                answers: formattedAnswers,
-                status: essayCount > 0 ? 'بانتظار تصحيح المقالي ⏳' : 'مصحح بالكامل ✅',
-                timestamp: Date.now()
-            };
+        let totalMax = currentExamData.questions.length * 10;
+        let finalResult = {
+            examTitle: currentExamData.title,
+            teacherId: activeExamTeacherId,
+            mcqScore,
+            essayScore: 0,
+            totalScore: mcqScore,
+            maxTotal: totalMax,
+            answers: formattedAnswers,
+            status: essayCount > 0 ? 'بانتظار تصحيح المقالي ⏳' : 'مصحح بالكامل ✅',
+            timestamp: Date.now()
+        };
 
-            db.ref(`exam_results/${currentUser.phone}/${currentExamData.id}`).set(finalResult).then(() => {
-                document.getElementById('exam-taking-screen').classList.add('hidden');
-                document.getElementById('res-exam-title').innerText = currentExamData.title;
-                document.getElementById('res-score-val').innerText = mcqScore;
-                document.getElementById('res-total-val').innerText = totalMax;
-                document.getElementById('res-status-note').innerText = essayCount > 0 ? 'تم رصد درجات الأسئلة الاختيارية، والأسئلة المقالية تنتظر تصحيح المعلم!' : 'تم رصد درجتك النهائية بنجاح!';
-                document.getElementById('exam-result-screen').classList.remove('hidden');
-            });
-        }
+        db.ref(`exam_results/${currentUser.phone}/${currentExamData.id}`).set(finalResult).then(() => {
+            document.getElementById('exam-taking-screen').classList.add('hidden');
+            document.getElementById('res-exam-title').innerText = currentExamData.title;
+            document.getElementById('res-score-val').innerText = mcqScore;
+            document.getElementById('res-total-val').innerText = totalMax;
+            document.getElementById('res-status-note').innerText = essayCount > 0 ? 'المقالي ينتظر تصحيح المعلم!' : 'تم رصد درجتك!';
+            document.getElementById('exam-result-screen').classList.remove('hidden');
+            pushNotification(activeExamTeacherId, `${currentUser.name} أتم امتحان "${currentExamData.title}"`, 'exam');
+        });
     }
 
     function returnToStudentDashboard() {
@@ -1451,31 +1831,29 @@
         db.ref('exam_results/' + currentUser.phone).on('value', (snap) => {
             const results = snap.val() || {};
             const container = document.getElementById('student-history-table-container');
-            let html = '<table><tr><th>اسم الامتحان</th><th>الدرجة الحاصل عليها</th><th>الدرجة الكلية</th><th>الحالة</th></tr>';
+            let html = '<table><tr><th>الامتحان</th><th>الدرجة</th><th>الكلية</th><th>الحالة</th></tr>';
             let hasR = false;
-
-            Object.keys(results).forEach(eId => {
-                let r = results[eId];
+            Object.values(results).forEach(r => {
                 hasR = true;
-                html += `<tr><td>${r.examTitle}</td><td><b>${r.totalScore}</b></td><td>${r.maxTotal}</td><td><span class="badge badge-success">${r.status}</span></td></tr>`;
+                html += `<tr><td>${escapeHtml(r.examTitle)}</td><td><b>${r.totalScore}</b></td><td>${r.maxTotal}</td><td><span class="badge badge-success">${escapeHtml(r.status)}</span></td></tr>`;
             });
             html += '</table>';
-            container.innerHTML = hasR ? html : '<p style="color: var(--text-muted);">لا توجد اختبارات مؤداة بعد.</p>';
+            container.innerHTML = hasR ? html : '<p style="color: var(--text-muted);">لا توجد اختبارات بعد.</p>';
             document.getElementById('student-active-section').classList.remove('hidden');
         });
     }
 
+    /* =============== المنتدى =============== */
     function publishForumPost() {
         const title = document.getElementById('forum-post-title').value.trim();
         const content = document.getElementById('forum-post-content').value.trim();
         if (!title || !content) { alert('أدخل عنوان ومحتوى المنشور!'); return; }
-
         db.ref('forum_posts').push({
             studentName: currentUser.name,
             studentPhone: currentUser.phone,
             title, content, timestamp: Date.now()
         }).then(() => {
-            showLiveNotification('🚀 تم نشر سؤالك في المنتدى العام بنجاح!');
+            showLiveNotification('🚀 تم نشر سؤالك!');
             document.getElementById('forum-post-title').value = '';
             document.getElementById('forum-post-content').value = '';
         });
@@ -1487,21 +1865,20 @@
             const container = document.getElementById('forum-posts-container');
             let html = '';
             let hasP = false;
-
             Object.keys(posts).reverse().forEach(pKey => {
                 let p = posts[pKey];
                 hasP = true;
                 html += `
                     <div style="background: #05080f; padding: 18px; border-radius: 12px; margin-bottom: 14px; border: 1px solid var(--border-color);">
-                        <div style="font-size: 13px; color: var(--primary); font-weight: 800; margin-bottom: 6px;">بواسطة: ${p.studentName}</div>
-                        <h4 style="color: var(--text-main); margin-bottom: 8px;">${p.title}</h4>
-                        <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">${p.content}</p>
+                        <div style="font-size: 13px; color: var(--primary); font-weight: 800; margin-bottom: 6px;">بواسطة: ${escapeHtml(p.studentName)}</div>
+                        <h4 style="color: var(--text-main); margin-bottom: 8px;">${escapeHtml(p.title)}</h4>
+                        <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">${escapeHtml(p.content)}</p>
                     </div>
                 `;
             });
-            container.innerHTML = hasP ? html : '<p style="color: var(--text-muted);">لا توجد منشورات حالياً في المنتدى.</p>';
+            container.innerHTML = hasP ? html : '<p style="color: var(--text-muted);">لا توجد منشورات حالياً.</p>';
         });
     }
 </script>
 </body>
-</html>
+    </html>
