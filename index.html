@@ -84,6 +84,32 @@
         .badge-success { background: rgba(5, 150, 105, 0.2); color: var(--success); border: 1px solid rgba(5, 150, 105, 0.4); }
         .badge-warning { background: rgba(217, 119, 6, 0.2); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.4); }
 
+        /* طبقة حماية إضافية فوق الفيديو لمنع أي نقرات أو تفاعل مع أزرار المشاركة */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        .video-shield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 48px; /* حجب الشريط العلوي لروابط ومشاركة يوتيوب */
+            z-index: 10;
+            background: transparent;
+        }
+        .video-shield-bottom {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 70px;
+            height: 55px; /* حجب زر نسخ الرابط أسفل اليمين في يوتيوب */
+            z-index: 10;
+            background: transparent;
+        }
+
         /* بانر الإشعارات العلوية */
         #live-notification-banner {
             position: fixed;
@@ -368,7 +394,7 @@
         </div>
     </div>
 
-    <!-- نافذة عرض الفيديو الفردي المقيد -->
+    <!-- نافذة عرض الفيديو الفردي المقيد الآمن -->
     <div id="video-modal" class="hidden" style="position: fixed; top: 0; right: 0; left: 0; bottom: 0; background: rgba(0,0,0,0.96); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
         <div style="width: 100%; max-width: 1250px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 10px;">
             <h3 id="modal-video-title" style="color: var(--primary); font-size: 1.2rem; margin: 0;">مشاهدة الفيديو التعليمي</h3>
@@ -498,7 +524,8 @@
         } else if (val.includes('embed/')) {
             videoId = val.split('embed/')[1].split('?')[0];
         }
-        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1` : val;
+        // إضافة معاملات الأمان لمنع الخروج وإخفاء علامات المشاركة والروابط الخارجية
+        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1` : val;
     }
 
     function switchLoginMode(mode) {
@@ -1244,7 +1271,15 @@
         });
 
         document.getElementById('modal-video-title').innerText = videoTitle;
-        document.getElementById('modal-video-container').innerHTML = `<iframe src="${videoUrl}" style="width:100%; height:100%; border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        
+        // غلاف آمن لإلغاء أي إمكانية لنسخ الرابط أو الخروج من المنصة
+        document.getElementById('modal-video-container').innerHTML = `
+            <div class="video-wrapper">
+                <div class="video-shield"></div>
+                <div class="video-shield-bottom"></div>
+                <iframe src="${videoUrl}" style="width:100%; height:100%; border:none;" sandbox="allow-scripts allow-same-origin allow-presentation" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        `;
         document.getElementById('video-modal').classList.remove('hidden');
     }
 
@@ -1468,46 +1503,5 @@
         });
     }
 </script>
-
-<!-- 
-    ========================================================================
-    قواعد الحماية الأمنية الموصى بها لتفعيلها في Firebase (Security Rules)
-    ========================================================================
-    
-    // Realtime Database Rules (تأمين قواعد البيانات):
-    {
-      "rules": {
-        "teachers": {
-          ".read": true,
-          ".write": "auth != null"
-        },
-        "courses": {
-          ".read": true,
-          ".write": "auth != null"
-        },
-        "authorized_students": {
-          ".read": true,
-          ".write": "auth != null"
-        },
-        "forum_posts": {
-          ".read": true,
-          ".write": true
-        }
-      }
-    }
-    
-    // Firebase Storage Rules (حماية ملفات التخزين):
-    service firebase.storage {
-      match /b/{bucket}/o {
-        match /student_ids/{allPaths=**} {
-          allow read, write: if true;
-        }
-        match /course_images/{allPaths=**} {
-          allow read: if true;
-          allow write: if request.auth != null;
-        }
-      }
-    }
--->
 </body>
 </html>
